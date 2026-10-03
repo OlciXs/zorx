@@ -2,11 +2,15 @@ import { Injectable, ConflictException, UnauthorizedException, NotFoundException
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService, // <-- Wstrzykujemy JwtService
+  ) {}
 
   async register(createUserDto: CreateUserDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -26,7 +30,6 @@ export class UsersService {
       },
     });
 
-    // Zwracamy obiekt bez hasła
     const { password, ...result } = user;
     return result;
   }
@@ -46,10 +49,16 @@ export class UsersService {
       throw new UnauthorizedException('Nieprawidłowy email lub hasło.');
     }
 
-    const { password, ...result } = user;
+    // Tworzymy payload dla tokena JWT
+    const payload = { sub: user.id, email: user.email };
+
+    // Zwracamy accessToken
     return {
-      message: 'Zalogowano pomyślnie',
-      user: result,
+      accessToken: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+      },
     };
   }
 

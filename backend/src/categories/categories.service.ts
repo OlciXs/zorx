@@ -6,34 +6,28 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createCategoryDto: CreateCategoryDto, userId: string) {
-    return this.prisma.category.create({
-      data: {
-        ...createCategoryDto,
-        userId, // Przekazujemy userId jawnie do relacji w Prismie
-      },
-    });
-  }
+// src/categories/categories.service.ts
+async create(createCategoryDto: CreateCategoryDto, userId: string) {
+  return this.prisma.category.create({
+    data: {
+      ...createCategoryDto,
+      userId, // Przypisanie do konkretnego użytkownika
+    },
+  });
+}
 
-  async findAllByUser(userId: string) {
-    return this.prisma.category.findMany({
-      where: { userId },
-      include: {
-        _count: {
-          select: { flashcards: true },
-        },
-      },
-    });
-  }
+async findAllByUser(userId: string) {
+  return this.prisma.category.findMany({
+    where: { userId }, // Pobieranie tylko kategorii tego użytkownika
+  });
+}
 
-  async remove(id: string) {
-    const category = await this.prisma.category.findUnique({ where: { id } });
-    if (!category) {
-      throw new NotFoundException(`Kategoria o ID ${id} nie istnieje.`);
-    }
-
-    return this.prisma.category.delete({
-      where: { id },
-    });
-  }
+async remove(id: string, userId: string) {
+  return this.prisma.category.deleteMany({
+    where: {
+      id: id,
+      userId: userId, // Dopisujemy userId, żeby użytkownik nie mógł usunąć cudzej kategorii
+    },
+  });
+}
 }
