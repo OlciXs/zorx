@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Trash2, RotateCw, Edit2 } from 'lucide-react';
 import type { Flashcard } from '../types';
 
@@ -11,6 +11,13 @@ interface FlashcardViewerProps {
 export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, onDelete, onEdit }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // Bezpiecznik: jeśli lista fiszek się zmniejszy (np. po usunięciu), korygujemy indeks
+  useEffect(() => {
+    if (currentIndex >= flashcards.length && flashcards.length > 0) {
+      setCurrentIndex(flashcards.length - 1);
+    }
+  }, [flashcards.length, currentIndex]);
 
   const currentCard = flashcards[currentIndex];
 
@@ -28,11 +35,10 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
     }
   };
 
-  if (!currentCard) return null;
+  if (!currentCard || flashcards.length === 0) return null;
 
-  // Wsparcie dla różnych wariantów nazw pól w typie Flashcard (front/word oraz back/translation)
-  const cardFrontText = currentCard.word || (currentCard as any).word || '';
-  const cardBackText = currentCard.translation || (currentCard as any).translation || '';
+  const cardFrontText = currentCard.word || (currentCard as any).front || '';
+  const cardBackText = currentCard.translation || (currentCard as any).back || '';
 
   return (
     <div style={styles.cardContainer}>
@@ -76,7 +82,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
       <div style={styles.controlsBar}>
         <button
           disabled={currentIndex === 0}
-          onClick={handlePrev}
+          onClick={(e) => { e.stopPropagation(); handlePrev(); }}
           style={{
             ...styles.btnNav,
             opacity: currentIndex === 0 ? 0.4 : 1,
@@ -91,26 +97,26 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
         </span>
 
         <button
-          disabled={currentIndex === flashcards.length - 1}
-          onClick={handleNext}
+          disabled={currentIndex >= flashcards.length - 1}
+          onClick={(e) => { e.stopPropagation(); handleNext(); }}
           style={{
             ...styles.btnNav,
-            opacity: currentIndex === flashcards.length - 1 ? 0.4 : 1,
-            cursor: currentIndex === flashcards.length - 1 ? 'not-allowed' : 'pointer',
+            opacity: currentIndex >= flashcards.length - 1 ? 0.4 : 1,
+            cursor: currentIndex >= flashcards.length - 1 ? 'not-allowed' : 'pointer',
           }}
         >
           Następna <ChevronRight size={18} />
         </button>
 
         <button
-          onClick={() => onEdit(currentCard)}
+          onClick={(e) => { e.stopPropagation(); onEdit(currentCard); }}
           style={styles.btnEdit}
           title="Edytuj fiszkę"
         >
           <Edit2 size={18} />
         </button>
         <button
-          onClick={() => onDelete(currentCard.id)}
+          onClick={(e) => { e.stopPropagation(); onDelete(currentCard.id); }}
           style={styles.btnDelete}
           title="Usuń fiszkę"
         >
@@ -122,7 +128,6 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  // Kontener na całą szerokość sekcji głównej, ładnie wyśrodkowany o maksymalnej szerokości 750px
   cardContainer: { 
     width: '100%', 
     maxWidth: '750px', 
@@ -131,8 +136,6 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: 'column', 
     gap: '1.5rem' 
   },
-  
-  // Duża, spektakularna karta z miękkimi cieniami i dużymi zaokrągleniami
   flipCard: { 
     minHeight: '400px', 
     backgroundColor: '#ffffff', 
@@ -148,21 +151,15 @@ const styles: Record<string, React.CSSProperties> = {
     position: 'relative',
     transition: 'transform 0.15s ease, boxShadow 0.15s ease'
   },
-  
   cardFront: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px', width: '100%' },
   badgeFront: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: '#f1f5f9', color: '#64748b', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
   wordFront: { fontSize: '42px', color: '#0f172a', margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
-  
   cardBack: { textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' },
   badgeBack: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: '#e0e7ff', color: '#4338ca', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
   wordBack: { fontSize: '38px', color: '#4f46e5', margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
-  
   infoBox: { fontSize: '14px', color: '#334155', backgroundColor: '#f8fafc', padding: '10px 16px', borderRadius: '10px', width: '100%', maxWidth: '500px', textAlign: 'left', border: '1px solid #f1f5f9' },
-
   flipHintContainer: { display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2rem' },
   flipHint: { fontSize: '13px', color: '#94a3b8', fontWeight: 500 },
-
-  // Nowoczesny dolny pasek nawigacyjny dopasowany do stylów dashboardu
   controlsBar: { 
     display: 'flex', 
     justifyContent: 'space-between', 
@@ -173,7 +170,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #e2e8f0',
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)'
   },
-  btnNav: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', border: 'none', backgroundColor: '#f1f5f9', color: '#334155', fontSize: '14px', fontWeight: 600, transition: 'background 0.2s' },
+  btnNav: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', border: 'none', backgroundColor: '#f1f5f9', color: '#334155', fontSize: '14px', fontWeight: 600, cursor: 'pointer' },
   counterText: { fontSize: '14px', color: '#64748b', fontWeight: 400 },
   btnEdit: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#eff6ff', color: '#3b82f6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   btnDelete: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },

@@ -4,11 +4,10 @@ import { DashboardScreen } from './screens/DashboardScreen';
 import { Exercises } from './components/Exercises';
 import { TestScreen } from './components/TestScreen';
 import { LlmSentencesScreen } from './components/LlmSentencesScreen';
-import { FlashcardViewer } from './components/FlashcardViewer'; // Jeśli masz go w komponentach
+import { FlashcardViewer } from './components/FlashcardViewer';
 import { api } from './api';
 import type { Flashcard, Category } from './types';
 
-// Rozszerzone stany widoków aplikacji
 type AppView = 'dashboard' | 'exercises-hub' | 'test' | 'interactive' | 'llm';
 
 export default function App() {
@@ -24,7 +23,6 @@ export default function App() {
     setCurrentView('dashboard');
   };
 
-  // Uruchomienie sekcji ćwiczeń z poziomu Dashboardu (przycisk "Ćwicz teraz")
   const handleStartExercises = async (categoryId: string) => {
     try {
       const url = categoryId ? `/flashcards?categoryId=${categoryId}` : '/flashcards';
@@ -46,24 +44,25 @@ export default function App() {
     }
   };
 
-  // Jeśli użytkownik nie jest zalogowany
   if (!token) {
     return <WelcomeScreen onLoginSuccess={(newToken) => setToken(newToken)} />;
   }
 
-  // 1. Ekran główny wyboru trybów (Hub)
   if (currentView === 'exercises-hub') {
     return (
       <Exercises
         flashcards={exerciseFlashcards}
         categoryName={exerciseCategoryName}
         onBack={() => setCurrentView('dashboard')}
-        onSelectMode={(mode) => setCurrentView(mode)}
+        onSelectMode={(mode: string) => {
+          if (mode === 'test' || mode === 'write') setCurrentView('test');
+          else if (mode === 'interactive' || mode === 'flashcards') setCurrentView('interactive');
+          else if (mode === 'llm' || mode === 'ai') setCurrentView('llm');
+        }}
       />
     );
   }
 
-  // 2. Zaawansowany test pisemny (z wyborem pytań i powtórką błędów)
   if (currentView === 'test') {
     return (
       <TestScreen
@@ -73,7 +72,7 @@ export default function App() {
     );
   }
 
-// 3. Tryb interaktywny (Fiszki / FlashcardViewer)
+  // Tryb interaktywny (Fiszki / FlashcardViewer)
   if (currentView === 'interactive') {
     return (
       <div style={{ maxWidth: '800px', margin: '3rem auto', padding: '0 2rem' }}>
@@ -91,22 +90,22 @@ export default function App() {
           flashcards={exerciseFlashcards} 
           onDelete={async (id) => {
             try {
-              // Opcjonalnie: wywołanie API do usunięcia z bazy danych
               await api.delete(`/flashcards/${id}`);
-              
-              // Usunięcie fiszki z lokalnego stanu, aby widok od razu się zaktualizował
               setExerciseFlashcards(prev => prev.filter(f => f.id !== id));
             } catch (err) {
               console.error('Nie udało się usunąć fiszki', err);
               alert('Wystąpił błąd podczas usuwania fiszki.');
             }
           }}
+          onEdit={(flashcard) => {
+            // Opcjonalna obsługa edycji w tym widoku lub powrót do dashboardu
+            setCurrentView('dashboard');
+          }}
         />
       </div>
     );
   }
 
-  // 4. Zdania z AI / LLM
   if (currentView === 'llm') {
     return (
       <LlmSentencesScreen
@@ -116,7 +115,6 @@ export default function App() {
     );
   }
 
-  // Domyślnie: Główny pulpit (Dashboard)
   return (
     <DashboardScreen 
       onLogout={handleLogout} 

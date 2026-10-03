@@ -83,13 +83,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
     if (!newFront.trim() || !newBack.trim()) return;
 
     try {
-<<<<<<< HEAD
-      await api.post('/flashcards', {
-        word: newFront,        // Poprawione pole zgodne z DTO i typami
-        translation: newBack,  // Poprawione pole zgodne z DTO i typami
-        categoryId: selectedCategoryId || null
-      });
-=======
       if (editingFlashcardId) {
         await api.patch(`/flashcards/${editingFlashcardId}`, {
           word: newFront,
@@ -102,7 +95,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
           categoryId: selectedCategoryId || null
         });
       }
->>>>>>> dd307b7b8b99e92ba2e835dcd4852b10a7e3c3ab
       setNewFront('');
       setNewBack('');
       setIsAddingFlashcard(false);
