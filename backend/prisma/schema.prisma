@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  categories Category[]
+  flashcards Flashcard[]
+}
+
+model Category {
+  id         String      @id @default(uuid())
+  name       String
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcards Flashcard[]
+}
+
+model Flashcard {
+  id          String    @id @default(uuid())
+  word        String
+  translation String
+  definition  String?   // Wygenerowane przez AI
+  synonyms    String[]  // Wygenerowane przez AI
+
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
