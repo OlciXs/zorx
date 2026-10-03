@@ -3,16 +3,18 @@ import {
   Get,
   Post,
   Delete,
+  Patch,
   Body,
   Param,
   Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { FlashcardsService } from './flashcards.service';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
+import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
 
 @ApiTags('flashcards')
 @ApiBearerAuth()
@@ -45,6 +47,14 @@ export class FlashcardsController {
   @ApiParam({ name: 'id', description: 'ID fiszki' })
   findOne(@Param('id') id: string) {
     return this.flashcardsService.findOne(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Edycja fiszki po ID' })
+  @ApiParam({ name: 'id', description: 'ID fiszki' })
+  @ApiBody({ type: UpdateFlashcardDto })
+  update(@Param('id') id: string, @Body() updateFlashcardDto: UpdateFlashcardDto) {
+    return this.flashcardsService.update(id, updateFlashcardDto);
   }
 
   @Delete(':id')

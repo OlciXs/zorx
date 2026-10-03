@@ -18,6 +18,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   
   const [isAddingFlashcard, setIsAddingFlashcard] = useState(false);
+  const [editingFlashcardId, setEditingFlashcardId] = useState<string | null>(null);
   const [newFront, setNewFront] = useState('');
   const [newBack, setNewBack] = useState('');
 
@@ -83,18 +84,26 @@ const handleAddFlashcard = async (e: React.FormEvent) => {
     if (!newFront.trim() || !newBack.trim()) return;
 
     try {
-      await api.post('/flashcards', {
-        word: newFront,          // Zmieniono z 'front' na 'word' zgodne z DTO i types.ts
-        translation: newBack,    // Zmieniono z 'back' na 'translation' zgodne z DTO i types.ts
-        categoryId: selectedCategoryId || null
-      });
+      if (editingFlashcardId) {
+        await api.patch(`/flashcards/${editingFlashcardId}`, {
+          word: newFront,
+          translation: newBack,
+        });
+      } else {
+        await api.post('/flashcards', {
+          word: newFront,
+          translation: newBack,
+          categoryId: selectedCategoryId || null
+        });
+      }
       setNewFront('');
       setNewBack('');
       setIsAddingFlashcard(false);
+      setEditingFlashcardId(null);
       fetchFlashcards(selectedCategoryId);
     } catch (err: any) {
       console.error('Szczegóły błędu:', err.response?.data);
-      alert('Nie udało się dodać fiszki');
+      alert(editingFlashcardId ? 'Nie udało się edytować fiszki' : 'Nie udało się dodać fiszki');
     }
   };
 
@@ -160,6 +169,12 @@ const handleAddFlashcard = async (e: React.FormEvent) => {
               <FlashcardViewer
                 flashcards={flashcards}
                 onDelete={handleDeleteFlashcard}
+                onEdit={(flashcard) => {
+                  setEditingFlashcardId(flashcard.id);
+                  setNewFront(flashcard.word || (flashcard as any).front || '');
+                  setNewBack(flashcard.translation || (flashcard as any).back || '');
+                  setIsAddingFlashcard(true);
+                }}
               />
             </div>
           )}
@@ -172,9 +187,9 @@ const handleAddFlashcard = async (e: React.FormEvent) => {
             <div style={styles.modalHeader}>
               <div style={styles.modalTitleBox}>
                 <BookOpen size={20} color="#4f46e5" />
-                <h3 style={styles.modalTitle}>Dodaj nową fiszkę</h3>
+                <h3 style={styles.modalTitle}>{editingFlashcardId ? 'Edytuj fiszkę' : 'Dodaj nową fiszkę'}</h3>
               </div>
-              <button onClick={() => setIsAddingFlashcard(false)} style={styles.btnClose}>
+              <button onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); }} style={styles.btnClose}>
                 <X size={20} />
               </button>
             </div>
@@ -200,8 +215,8 @@ const handleAddFlashcard = async (e: React.FormEvent) => {
                 />
               </div>
               <div style={styles.modalFooter}>
-                <button type="button" onClick={() => setIsAddingFlashcard(false)} style={styles.btnCancel}>Anuluj</button>
-                <button type="submit" disabled={!newFront || !newBack} style={styles.btnSave}>Zapisz fiszkę</button>
+                <button type="button" onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); }} style={styles.btnCancel}>Anuluj</button>
+                <button type="submit" disabled={!newFront || !newBack} style={styles.btnSave}>{editingFlashcardId ? 'Zapisz zmiany' : 'Zapisz fiszkę'}</button>
               </div>
             </form>
           </div>
