@@ -7,13 +7,16 @@ import {
   Param,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { FlashcardsService } from './flashcards.service';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 
 @ApiTags('flashcards')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt')) // <-- Zabezpieczenie JWT dla całego kontrolera
 @Controller('flashcards')
 export class FlashcardsController {
   constructor(private readonly flashcardsService: FlashcardsService) {}
@@ -24,19 +27,17 @@ export class FlashcardsController {
     @Body() createFlashcardDto: CreateFlashcardDto,
     @Request() req: any,
   ) {
-    const userId = req.user?.id || req.headers['x-user-id'] || 'test-user-id';
-    return this.flashcardsService.create(createFlashcardDto, userId);
+    return this.flashcardsService.create(createFlashcardDto, req.user.id);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Pobieranie wszystkich fiszek użytkownika (z opcjonalnym filtrowaniem po kategorii)' })
+  @ApiOperation({ summary: 'Pobieranie wszystkich fiszek użytkownika' })
   @ApiQuery({ name: 'categoryId', required: false, description: 'Filtruj fiszki po ID kategorii' })
   findAll(
     @Request() req: any,
     @Query('categoryId') categoryId?: string,
   ) {
-    const userId = req.user?.id || req.headers['x-user-id'] || 'test-user-id';
-    return this.flashcardsService.findAllByUser(userId, categoryId);
+    return this.flashcardsService.findAllByUser(req.user.id, categoryId);
   }
 
   @Get(':id')

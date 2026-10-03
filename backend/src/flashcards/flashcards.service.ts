@@ -7,18 +7,10 @@ export class FlashcardsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createFlashcardDto: CreateFlashcardDto, userId: string) {
-    let user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      user = await this.prisma.user.findFirst();
-      if (!user) {
-        throw new NotFoundException('Brak użytkowników w bazie. Zarejestruj najpierw użytkownika.');
-      }
-    }
-
     return this.prisma.flashcard.create({
       data: {
         ...createFlashcardDto,
-        userId: user.id,
+        userId, // Przypisujemy bezpośrednio ID zalogowanego użytkownika
       },
     });
   }
@@ -49,7 +41,7 @@ export class FlashcardsService {
   }
 
   async remove(id: string) {
-    await this.findOne(id); // Rzuca NotFoundException jeśli fiszka nie istnieje
+    await this.findOne(id);
 
     return this.prisma.flashcard.delete({
       where: { id },
