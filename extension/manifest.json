@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Zapisywacz Słów",
-  "version": "1.3",
-  "description": "Zapisuje i tłumaczy słowa lub pozwala dodać własną definicję.",
+  "version": "1.4",
+  "description": "Zapisuje i tłumaczy słowa, synchronizuje z bazą danych fiszek.",
   "permissions": [
     "contextMenus",
     "storage",
@@ -10,7 +10,8 @@
     "activeTab"
   ],
   "host_permissions": [
-    "https://translate.googleapis.com/*"
+    "https://translate.googleapis.com/*",
+    "https://zorx-backend.onrender.com/*"
   ],
   "background": {
     "service_worker": "background.js"
