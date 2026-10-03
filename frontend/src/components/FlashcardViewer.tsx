@@ -12,7 +12,6 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Bezpiecznik: jeśli lista fiszek się zmniejszy (np. po usunięciu), korygujemy indeks
   useEffect(() => {
     if (currentIndex >= flashcards.length && flashcards.length > 0) {
       setCurrentIndex(flashcards.length - 1);
@@ -42,7 +41,6 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
 
   return (
     <div style={styles.cardContainer}>
-      {/* DUŻA INTERAKTYWNA KARTA NA ŚRODKU */}
       <div style={styles.flipCard} onClick={() => setIsFlipped(!isFlipped)}>
         {!isFlipped ? (
           <div style={styles.cardFront}>
@@ -78,7 +76,6 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
         )}
       </div>
 
-      {/* PASEK NAWIGACJI POD FISZKĄ */}
       <div style={styles.controlsBar}>
         <button
           disabled={currentIndex === 0}

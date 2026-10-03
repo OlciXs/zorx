@@ -3,14 +3,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { JwtStrategy } from './jwt.strategy'; // Stworzymy ten plik za chwilę
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'super_tajny_klucz_jwt', // Zalecane w .env
-      signOptions: { expiresIn: '7d' }, // Token ważny 7 dni
+      secret: process.env.JWT_SECRET || 'super_tajny_klucz_jwt',
+      signOptions: { expiresIn: '7d' },
     }),
   ],
   controllers: [UsersController],

@@ -19,7 +19,6 @@ export default function App() {
   const [exerciseCategoryName, setExerciseCategoryName] = useState<string>('Wszystkie fiszki');
   const [currentCategoryId, setCurrentCategoryId] = useState<string>('');
 
-  // Stany dla modalu edycji w widoku interaktywnym
   const [editingFlashcardId, setEditingFlashcardId] = useState<string | null>(null);
   const [newFront, setNewFront] = useState('');
   const [newBack, setNewBack] = useState('');
@@ -63,7 +62,6 @@ export default function App() {
         translation: newBack,
       });
 
-      // Odśwież listę fiszek
       const url = currentCategoryId ? `/flashcards?categoryId=${currentCategoryId}` : '/flashcards';
       const res = await api.get(url);
       setExerciseFlashcards(res.data);
@@ -106,7 +104,6 @@ export default function App() {
     );
   }
 
-  // Tryb interaktywny (Fiszki / FlashcardViewer)
   if (currentView === 'interactive') {
     return (
       <div style={{ maxWidth: '800px', margin: '3rem auto', padding: '0 2rem', position: 'relative' }}>
@@ -139,7 +136,6 @@ export default function App() {
           }}
         />
 
-        {/* Modal edycji fiszki */}
         {isEditingModalOpen && (
           <div style={styles.modalOverlay}>
             <div style={styles.modalContent}>

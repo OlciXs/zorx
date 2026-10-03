@@ -14,17 +14,50 @@ export const LlmSentencesScreen: React.FC<LlmSentencesScreenProps> = ({ flashcar
     "This is an example sentence generated for your word.",
     "Another contextual sentence demonstrating usage."
   ]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     setLoading(true);
-    // TODO: Tutaj podłączysz zapytanie do swojego backendu z LLM (np. api.post('/ai/sentences', { word: selectedWord.word }))
-    setTimeout(() => {
-      setSentences([
-        `I need to ${selectedWord.word} as soon as possible.`,
-        `Can you show me how to ${selectedWord.word} effectively?`
-      ]);
+    setError(null);
+
+    try {
+      const response = await fetch("http://6.tcp.eu.ngrok.io:10686/api/v1/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "bielik-minitron-7b-v3.0-instruct",
+          system_prompt: "Answer with 2 distinct English sentences demonstrating the word, separated by a newline. Don't add any useless words or numbering.",
+          input: `Create sentences that show the use of the word '${selectedWord.word}'`
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Błąd serwera: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const content = data.output?.[0]?.content || "";
+
+      const parsedSentences = content
+        .split('\n')
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 0);
+
+      if (parsedSentences.length > 0) {
+        setSentences(parsedSentences);
+      } else {
+        setSentences([content]);
+      }
+
+    } catch (err: any) {
+      console.error("Błąd podczas generowania zdań:", err);
+      setError("Nie udało się połączyć z modelem AI. Sprawdź połączenie lub CORS.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -42,8 +75,8 @@ export const LlmSentencesScreen: React.FC<LlmSentencesScreenProps> = ({ flashcar
 
         <div style={styles.selectorGroup}>
           <label style={styles.label}>Wybierz słówko:</label>
-          <select 
-            value={selectedWord.id} 
+          <select
+            value={selectedWord.id}
             onChange={(e) => {
               const found = flashcards.find(f => f.id === e.target.value);
               if (found) setSelectedWord(found);
@@ -60,11 +93,14 @@ export const LlmSentencesScreen: React.FC<LlmSentencesScreenProps> = ({ flashcar
           <Sparkles size={18} /> {loading ? 'Generowanie...' : 'Generuj nowe zdania'}
         </button>
 
+        {error && <p style={styles.errorText}>{error}</p>}
+
         <div style={styles.sentencesBox}>
           <h4 style={styles.sentTitle}>Przykładowe zdania:</h4>
           {sentences.map((sent, idx) => (
             <div key={idx} style={styles.sentenceItem}>
-              <span>{idx + 1}.</span> <strong>{sent}</strong>
+              <span style={{ color: '#0f172a' }}>{idx + 1}.</span>
+              <strong style={{ color: '#0f172a' }}>{sent}</strong>
             </div>
           ))}
         </div>
@@ -82,9 +118,10 @@ const styles: Record<string, React.CSSProperties> = {
   subtitle: { fontSize: '14px', color: '#64748b', margin: 0 },
   selectorGroup: { display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '1rem' },
   label: { fontSize: '13px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' },
-  select: { padding: '12px 16px', borderRadius: '10px', border: '2px solid #e2e8f0', fontSize: '15px', backgroundColor: '#fff', outline: 'none' },
+  select: { padding: '12px 16px', borderRadius: '10px', border: '2px solid #e2e8f0', fontSize: '15px', backgroundColor: '#fff', color: '#0f172a', outline: 'none' },
   aiButton: { padding: '14px', backgroundColor: '#9333ea', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '15px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' },
   sentencesBox: { display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: '16px' },
   sentTitle: { margin: '0 0 6px 0', fontSize: '14px', color: '#334155' },
-  sentenceItem: { fontSize: '15px', color: '#0f172a', display: 'flex', gap: '8px' }
+  sentenceItem: { fontSize: '15px', color: '#0f172a', display: 'flex', gap: '8px' },
+  errorText: { color: '#ef4444', fontSize: '14px', margin: 0 }
 };

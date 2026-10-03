@@ -16,7 +16,6 @@ async function bootstrap() {
     }),
   );
 
-  // Konfiguracja OpenAPI / Swagger UI
   const config = new DocumentBuilder()
     .setTitle('Zorx API')
     .setDescription('API dla rozszerzenia przeglądarki i aplikacji do fiszek Zorx')
@@ -24,7 +23,7 @@ async function bootstrap() {
     .addTag('users', 'Operacje na użytkownikach i autoryzacja')
     .addTag('categories', 'Zarządzanie kategoriami')
     .addTag('flashcards', 'Zarządzanie fiszkami')
-    .addBearerAuth() // <--- WŁĄCZA PRZYCISK AUTHORIZE W SWAGGERZE
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

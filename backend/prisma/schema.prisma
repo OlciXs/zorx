@@ -28,8 +28,8 @@ model Flashcard {
   id          String    @id @default(uuid())
   word        String
   translation String
-  definition  String?   // Wygenerowane przez AI
-  synonyms    String[]  // Wygenerowane przez AI
+  definition  String?
+  synonyms    String[]
 
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)

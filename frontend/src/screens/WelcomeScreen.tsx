@@ -1,4 +1,3 @@
-// WelcomeScreen.tsx
 import React, { useState } from 'react';
 import { api } from '../api';
 import { LoginScreen, RegisterScreen } from '../AuthForms';
@@ -38,7 +37,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoginSuccess }) 
 
   return (
     <div style={styles.container}>
-      {/* Lewa strona - Promocja wtyczki */}
       <div style={styles.heroSection}>
         <div style={styles.heroContent}>
           <div style={styles.logoBadge}>
@@ -68,7 +66,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoginSuccess }) 
         </div>
       </div>
 
-      {/* Prawa strona - Autoryzacja */}
       <div style={styles.authSection}>
         <div style={styles.authWrapper}>
           {isRegistering ? (

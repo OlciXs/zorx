@@ -91,23 +91,21 @@ const styles: Record<string, React.CSSProperties> = {
   sidebarHeader: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' },
   sidebarTitle: { margin: 0, fontSize: '16px', fontWeight: 600, color: '#1e293b' },
   catForm: { display: 'flex', gap: '6px', marginBottom: '1rem' },
-  
-  // POPRAWIONE POLE TEKSTOWE: Wymuszone białe tło i czarny tekst
   catInput: { 
     flex: 1, 
     padding: '8px 10px', 
     borderRadius: '6px', 
     border: '1px solid #cbd5e1', 
     fontSize: '13px',
-    backgroundColor: '#ffffff', // <-- wymuszenie białego tła
-    color: '#000000',           // <-- wymuszenie czarnego tekstu
-    outline: 'none'             // <-- usunięcie obwódki systemowej
+    backgroundColor: '#ffffff',
+    color: '#000000',
+    outline: 'none'
   },
   
   btnCatAdd: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#4f46e5', color: '#fff', cursor: 'pointer' },
   catList: { display: 'flex', flexDirection: 'column', gap: '4px' },
-  catRow: { display: 'flex', alignItems: 'center', gap: '4px' }, 
+  catRow: { display: 'flex', alignItems: 'center', gap: '4px' },
   catItem: { textAlign: 'left', padding: '10px 12px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#475569', cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s' },
   catItemActive: { backgroundColor: '#e0e7ff', color: '#4338ca', fontWeight: 600 },
-  btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' }, 
+  btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' },
 };

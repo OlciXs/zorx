@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService, // <-- Wstrzykujemy JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   async register(createUserDto: CreateUserDto) {
@@ -49,10 +49,8 @@ export class UsersService {
       throw new UnauthorizedException('Nieprawidłowy email lub hasło.');
     }
 
-    // Tworzymy payload dla tokena JWT
     const payload = { sub: user.id, email: user.email };
 
-    // Zwracamy accessToken
     return {
       accessToken: this.jwtService.sign(payload),
       user: {

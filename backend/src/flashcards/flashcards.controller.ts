@@ -18,7 +18,7 @@ import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
 
 @ApiTags('flashcards')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt')) // <-- Zabezpieczenie JWT dla całego kontrolera
+@UseGuards(AuthGuard('jwt'))
 @Controller('flashcards')
 export class FlashcardsController {
   constructor(private readonly flashcardsService: FlashcardsService) {}

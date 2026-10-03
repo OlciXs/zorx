@@ -12,7 +12,6 @@ type Direction = 'pl-to-en' | 'en-to-pl';
 export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) => {
   const [testPhase, setTestPhase] = useState<'config' | 'testing' | 'finished'>('config');
   
-  // Konfiguracja testu
   const [questionCountInput, setQuestionCountInput] = useState<string>(
     String(Math.min(flashcards.length, 10))
   );
@@ -25,7 +24,6 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
   const [score, setScore] = useState(0);
   const [wrongCards, setWrongCards] = useState<Flashcard[]>([]);
 
-  // Losowanie unikalnych fiszek i przygotowanie testu
   const startTest = (cardsToUse: Flashcard[]) => {
     let parsedCount = parseInt(questionCountInput, 10);
     if (isNaN(parsedCount) || parsedCount < 1) {
@@ -33,7 +31,6 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
     }
     const finalCount = Math.min(parsedCount, cardsToUse.length);
 
-    // Losowa kolejność bez powtórzeń
     const shuffled = [...cardsToUse].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, finalCount);
 
@@ -52,7 +49,6 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
     e.preventDefault();
     if (!currentCard || feedback !== null) return;
 
-    // Zależnie od kierunku sprawdzamy odpowiedłe pole fiszki
     const targetValue = direction === 'pl-to-en' ? currentCard.word : currentCard.translation;
     const isCorrect = userInput.trim().toLowerCase() === targetValue.trim().toLowerCase();
 
@@ -75,7 +71,6 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
     }
   };
 
-  // EKRAN KONFIGURACJI
   if (testPhase === 'config') {
     return (
       <div style={styles.container}>
@@ -89,7 +84,6 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
             Dostępnych fiszek w tej kategorii: <strong>{flashcards.length}</strong>
           </p>
 
-          {/* Wybór kierunku tłumaczenia */}
           <div style={styles.configGroup}>
             <label style={styles.label}>Kierunek tłumaczenia:</label>
             <div style={styles.directionRow}>
@@ -143,7 +137,6 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
     );
   }
 
-  // EKRAN PODSUMOWANIA TESTU
   if (testPhase === 'finished') {
     return (
       <div style={styles.container}>
@@ -177,7 +170,6 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
     );
   }
 
-  // WŁAŚCIWY TEST PISEMNY
   const questionPrompt = direction === 'pl-to-en' ? currentCard.translation : currentCard.word;
   const expectedAnswer = direction === 'pl-to-en' ? currentCard.word : currentCard.translation;
   const badgeLabel = direction === 'pl-to-en' ? 'Przetłumacz na angielski' : 'Przetłumacz na polski';

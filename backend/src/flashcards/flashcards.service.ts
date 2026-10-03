@@ -11,7 +11,7 @@ export class FlashcardsService {
     return this.prisma.flashcard.create({
       data: {
         ...createFlashcardDto,
-        userId, // Przypisujemy bezpośrednio ID zalogowanego użytkownika
+        userId,
       },
     });
   }
@@ -42,7 +42,7 @@ export class FlashcardsService {
   }
 
   async update(id: string, updateFlashcardDto: UpdateFlashcardDto) {
-    await this.findOne(id); // Check if exists
+    await this.findOne(id);
 
     return this.prisma.flashcard.update({
       where: { id },

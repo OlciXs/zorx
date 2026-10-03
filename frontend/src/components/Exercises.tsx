@@ -29,7 +29,6 @@ export const Exercises: React.FC<ExercisesHubProps> = ({
       </div>
 
       <div style={styles.modesGrid}>
-        {/* Kafel 1: Test pisemny (Fioletowy motyw) */}
         <div style={styles.modeCard} onClick={() => onSelectMode('test')}>
           <div style={{ ...styles.iconBox, backgroundColor: '#e0e7ff', color: '#4338ca' }}>
             <PenTool size={32} />
@@ -41,7 +40,6 @@ export const Exercises: React.FC<ExercisesHubProps> = ({
           <button style={styles.modeButton}>Rozpocznij test</button>
         </div>
 
-        {/* Kafel 2: Ćwiczenia interaktywne / Fiszki (Fioletowy motyw) */}
         <div style={styles.modeCard} onClick={() => onSelectMode('interactive')}>
           <div style={{ ...styles.iconBox, backgroundColor: '#ede9fe', color: '#6d28d9' }}>
             <Layers size={32} />
@@ -53,7 +51,6 @@ export const Exercises: React.FC<ExercisesHubProps> = ({
           <button style={styles.modeButton}>Rozpocznij naukę</button>
         </div>
 
-        {/* Kafel 3: Zdania z LLM (AI) */}
         <div style={styles.modeCard} onClick={() => onSelectMode('llm')}>
           <div style={{ ...styles.iconBox, backgroundColor: '#fae8ff', color: '#a21caf' }}>
             <Bot size={32} />
