@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
 import { AuthScreen } from './screens/AuthScreen';
 import { HomeScreen } from './screens/HomeScreen';
+import { useState } from 'react';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
