@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash2, RotateCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, RotateCw, Edit2 } from 'lucide-react';
 import type { Flashcard } from '../types';
 
 interface FlashcardViewerProps {
   flashcards: Flashcard[];
   onDelete: (id: string) => void;
+  onEdit: (flashcard: Flashcard) => void;
 }
 
-export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, onDelete }) => {
+export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, onDelete, onEdit }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -102,6 +103,13 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
         </button>
 
         <button
+          onClick={() => onEdit(currentCard)}
+          style={styles.btnEdit}
+          title="Edytuj fiszkę"
+        >
+          <Edit2 size={18} />
+        </button>
+        <button
           onClick={() => onDelete(currentCard.id)}
           style={styles.btnDelete}
           title="Usuń fiszkę"
@@ -167,5 +175,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   btnNav: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', border: 'none', backgroundColor: '#f1f5f9', color: '#334155', fontSize: '14px', fontWeight: 600, transition: 'background 0.2s' },
   counterText: { fontSize: '14px', color: '#64748b', fontWeight: 400 },
+  btnEdit: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#eff6ff', color: '#3b82f6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   btnDelete: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 };

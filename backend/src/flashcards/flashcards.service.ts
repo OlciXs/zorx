@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
+import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
 
 @Injectable()
 export class FlashcardsService {
@@ -38,6 +39,15 @@ export class FlashcardsService {
     }
 
     return flashcard;
+  }
+
+  async update(id: string, updateFlashcardDto: UpdateFlashcardDto) {
+    await this.findOne(id); // Check if exists
+
+    return this.prisma.flashcard.update({
+      where: { id },
+      data: updateFlashcardDto,
+    });
   }
 
   async remove(id: string) {
