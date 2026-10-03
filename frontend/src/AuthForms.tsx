@@ -10,7 +10,10 @@ const commonStyles: Record<string, React.CSSProperties> = {
   form: { display: 'flex', flexDirection: 'column', gap: '1.25rem' },
   inputGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { fontSize: '13px', fontWeight: 600, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px' },
-  input: { padding: '14px 16px', borderRadius: '12px', border: '2px solid #e2e8f0', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s', backgroundColor: '#f8fafc' },
+  
+  // TUTAJ JEST ZMIANA - dodano color: '#0f172a' na samym końcu
+  input: { padding: '14px 16px', borderRadius: '12px', border: '2px solid #e2e8f0', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s', backgroundColor: '#f8fafc', color: '#0f172a' },
+  
   submitBtn: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)', color: '#ffffff', fontWeight: 700, fontSize: '15px', cursor: 'pointer', marginTop: '10px', boxShadow: '0 10px 20px -10px rgba(79, 70, 229, 0.5)' },
   footerBtn: { background: 'none', border: 'none', color: '#6366f1', fontSize: '14px', fontWeight: 600, cursor: 'pointer', width: '100%', marginTop: '1.5rem' }
 };
