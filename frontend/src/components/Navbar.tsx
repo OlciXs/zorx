@@ -10,7 +10,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     <header style={styles.navbar}>
       <div style={styles.navBrand}>
         <BookOpen size={24} color="#4f46e5" />
-        <span style={styles.navTitle}>Zorx Flashcards</span>
+        <span style={styles.navTitle}>Flipify</span>
       </div>
       <button onClick={onLogout} style={styles.btnLogout}>
         <LogOut size={16} /> Wyloguj się

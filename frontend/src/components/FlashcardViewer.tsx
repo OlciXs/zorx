@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, RotateCw } from 'lucide-react';
 import type { Flashcard } from '../types';
 
 interface FlashcardViewerProps {
@@ -29,20 +29,27 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
 
   if (!currentCard) return null;
 
+  // Wsparcie dla różnych wariantów nazw pól w typie Flashcard (front/word oraz back/translation)
+  const cardFrontText = currentCard.word || (currentCard as any).word || '';
+  const cardBackText = currentCard.translation || (currentCard as any).translation || '';
+
   return (
     <div style={styles.cardContainer}>
-      {/* INTERAKTYWNA KARTA */}
+      {/* DUŻA INTERAKTYWNA KARTA NA ŚRODKU */}
       <div style={styles.flipCard} onClick={() => setIsFlipped(!isFlipped)}>
         {!isFlipped ? (
           <div style={styles.cardFront}>
-            <span style={styles.badgeFront}>Słowo / Fraza</span>
-            <h2 style={styles.wordFront}>{currentCard.word}</h2>
-            <span style={styles.flipHint}>Kliknij kartę, aby zobaczyć tłumaczenie</span>
+            <span style={styles.badgeFront}>Pojęcie / Słowo</span>
+            <h2 style={styles.wordFront}>{cardFrontText}</h2>
+            <div style={styles.flipHintContainer}>
+              <RotateCw size={14} color="#94a3b8" />
+              <span style={styles.flipHint}>Kliknij kartę, aby obrócić i zobaczyć tłumaczenie</span>
+            </div>
           </div>
         ) : (
           <div style={styles.cardBack}>
             <span style={styles.badgeBack}>Tłumaczenie</span>
-            <h2 style={styles.wordBack}>{currentCard.translation}</h2>
+            <h2 style={styles.wordBack}>{cardBackText}</h2>
 
             {currentCard.definition && (
               <div style={styles.infoBox}>
@@ -55,6 +62,11 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
                 <strong>Synonimy:</strong> {currentCard.synonyms.join(', ')}
               </div>
             )}
+            
+            <div style={styles.flipHintContainer}>
+              <RotateCw size={14} color="#818cf8" />
+              <span style={{ ...styles.flipHint, color: '#818cf8' }}>Kliknij, aby wrócić do pojęcia</span>
+            </div>
           </div>
         )}
       </div>
@@ -74,7 +86,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
         </button>
 
         <span style={styles.counterText}>
-          {currentIndex + 1} z {flashcards.length}
+          Fiszka <strong>{currentIndex + 1}</strong> z <strong>{flashcards.length}</strong>
         </span>
 
         <button
@@ -102,20 +114,58 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  cardContainer: { width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '1.2rem' },
-  flipCard: { minHeight: '280px', backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', position: 'relative' },
-  cardFront: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' },
-  badgeFront: { fontSize: '11px', textTransform: 'uppercase', backgroundColor: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: '20px', fontWeight: 600 },
-  wordFront: { fontSize: '32px', color: '#0f172a', margin: 0, fontWeight: 700 },
-  flipHint: { fontSize: '12px', color: '#94a3b8', marginTop: '12px' },
+  // Kontener na całą szerokość sekcji głównej, ładnie wyśrodkowany o maksymalnej szerokości 750px
+  cardContainer: { 
+    width: '100%', 
+    maxWidth: '750px', 
+    margin: '0 auto', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: '1.5rem' 
+  },
+  
+  // Duża, spektakularna karta z miękkimi cieniami i dużymi zaokrągleniami
+  flipCard: { 
+    minHeight: '400px', 
+    backgroundColor: '#ffffff', 
+    borderRadius: '24px', 
+    border: '1px solid #e2e8f0', 
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)', 
+    padding: '3.5rem 3rem', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    cursor: 'pointer', 
+    position: 'relative',
+    transition: 'transform 0.15s ease, boxShadow 0.15s ease'
+  },
+  
+  cardFront: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px', width: '100%' },
+  badgeFront: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: '#f1f5f9', color: '#64748b', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
+  wordFront: { fontSize: '42px', color: '#0f172a', margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
+  
+  cardBack: { textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' },
+  badgeBack: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: '#e0e7ff', color: '#4338ca', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
+  wordBack: { fontSize: '38px', color: '#4f46e5', margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
+  
+  infoBox: { fontSize: '14px', color: '#334155', backgroundColor: '#f8fafc', padding: '10px 16px', borderRadius: '10px', width: '100%', maxWidth: '500px', textAlign: 'left', border: '1px solid #f1f5f9' },
 
-  cardBack: { textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' },
-  badgeBack: { fontSize: '11px', textTransform: 'uppercase', backgroundColor: '#e0e7ff', color: '#4338ca', padding: '4px 10px', borderRadius: '20px', fontWeight: 600 },
-  wordBack: { fontSize: '28px', color: '#4f46e5', margin: 0, fontWeight: 700 },
-  infoBox: { fontSize: '13px', color: '#334155', backgroundColor: '#f8fafc', padding: '8px 12px', borderRadius: '6px', width: '100%', textAlign: 'left', border: '1px solid #f1f5f9' },
+  flipHintContainer: { display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2rem' },
+  flipHint: { fontSize: '13px', color: '#94a3b8', fontWeight: 500 },
 
-  controlsBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#ffffff', padding: '8px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' },
-  btnNav: { display: 'flex', alignItems: 'center', gap: '4px', padding: '8px 12px', borderRadius: '6px', border: 'none', backgroundColor: '#f1f5f9', color: '#334155', fontSize: '13px', fontWeight: 500 },
-  counterText: { fontSize: '13px', color: '#64748b', fontWeight: 500 },
-  btnDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer' },
+  // Nowoczesny dolny pasek nawigacyjny dopasowany do stylów dashboardu
+  controlsBar: { 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    backgroundColor: '#ffffff', 
+    padding: '12px 20px', 
+    borderRadius: '14px', 
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)'
+  },
+  btnNav: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', border: 'none', backgroundColor: '#f1f5f9', color: '#334155', fontSize: '14px', fontWeight: 600, transition: 'background 0.2s' },
+  counterText: { fontSize: '14px', color: '#64748b', fontWeight: 400 },
+  btnDelete: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 };

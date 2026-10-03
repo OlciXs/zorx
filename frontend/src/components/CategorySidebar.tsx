@@ -7,7 +7,7 @@ interface CategorySidebarProps {
   selectedCategoryId: string;
   onSelectCategory: (id: string) => void;
   onCreateCategory: (name: string) => void;
-  onDeleteCategory: (id: string) => void; // Dodany props!
+  onDeleteCategory: (id: string) => void;
 }
 
 export const CategorySidebar: React.FC<CategorySidebarProps> = ({
@@ -15,7 +15,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   selectedCategoryId,
   onSelectCategory,
   onCreateCategory,
-  onDeleteCategory, // Odebrany props!
+  onDeleteCategory,
 }) => {
   const [newCategoryName, setNewCategoryName] = useState('');
 
@@ -63,7 +63,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
               style={{
                 ...styles.catItem,
                 ...(selectedCategoryId === cat.id ? styles.catItemActive : {}),
-                flex: 1, // Pozwala przyciskowi zająć resztę miejsca
+                flex: 1, 
               }}
               onClick={() => onSelectCategory(cat.id)}
             >
@@ -71,7 +71,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
             </button>
             <button 
               onClick={(e) => {
-                e.stopPropagation(); // Zapobiega kliknięciu w kategorię pod spodem
+                e.stopPropagation();
                 onDeleteCategory(cat.id);
               }}
               style={styles.btnCatDelete}
@@ -91,11 +91,23 @@ const styles: Record<string, React.CSSProperties> = {
   sidebarHeader: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' },
   sidebarTitle: { margin: 0, fontSize: '16px', fontWeight: 600, color: '#1e293b' },
   catForm: { display: 'flex', gap: '6px', marginBottom: '1rem' },
-  catInput: { flex: 1, padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' },
+  
+  // POPRAWIONE POLE TEKSTOWE: Wymuszone białe tło i czarny tekst
+  catInput: { 
+    flex: 1, 
+    padding: '8px 10px', 
+    borderRadius: '6px', 
+    border: '1px solid #cbd5e1', 
+    fontSize: '13px',
+    backgroundColor: '#ffffff', // <-- wymuszenie białego tła
+    color: '#000000',           // <-- wymuszenie czarnego tekstu
+    outline: 'none'             // <-- usunięcie obwódki systemowej
+  },
+  
   btnCatAdd: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#4f46e5', color: '#fff', cursor: 'pointer' },
   catList: { display: 'flex', flexDirection: 'column', gap: '4px' },
-  catRow: { display: 'flex', alignItems: 'center', gap: '4px' }, // Dodany flex dla wiersza
+  catRow: { display: 'flex', alignItems: 'center', gap: '4px' }, 
   catItem: { textAlign: 'left', padding: '10px 12px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#475569', cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s' },
   catItemActive: { backgroundColor: '#e0e7ff', color: '#4338ca', fontWeight: 600 },
-  btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }, // Styl przycisku usuwania
+  btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' }, 
 };
