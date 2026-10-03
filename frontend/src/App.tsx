@@ -7,6 +7,7 @@ import { LlmSentencesScreen } from './components/LlmSentencesScreen';
 import { FlashcardViewer } from './components/FlashcardViewer';
 import { api } from './api';
 import type { Flashcard, Category } from './types';
+import { BookOpen, X } from 'lucide-react';
 
 type AppView = 'dashboard' | 'exercises-hub' | 'test' | 'interactive' | 'llm';
 
@@ -16,6 +17,13 @@ export default function App() {
   
   const [exerciseFlashcards, setExerciseFlashcards] = useState<Flashcard[]>([]);
   const [exerciseCategoryName, setExerciseCategoryName] = useState<string>('Wszystkie fiszki');
+  const [currentCategoryId, setCurrentCategoryId] = useState<string>('');
+
+  // Stany dla modalu edycji w widoku interaktywnym
+  const [editingFlashcardId, setEditingFlashcardId] = useState<string | null>(null);
+  const [newFront, setNewFront] = useState('');
+  const [newBack, setNewBack] = useState('');
+  const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -25,6 +33,7 @@ export default function App() {
 
   const handleStartExercises = async (categoryId: string) => {
     try {
+      setCurrentCategoryId(categoryId);
       const url = categoryId ? `/flashcards?categoryId=${categoryId}` : '/flashcards';
       const res = await api.get(url);
       setExerciseFlashcards(res.data);
@@ -41,6 +50,31 @@ export default function App() {
     } catch (err) {
       console.error('Błąd pobierania fiszek do ćwiczeń', err);
       alert('Nie udało się uruchomić ćwiczeń.');
+    }
+  };
+
+  const handleSaveEditedFlashcard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFront.trim() || !newBack.trim() || !editingFlashcardId) return;
+
+    try {
+      await api.patch(`/flashcards/${editingFlashcardId}`, {
+        word: newFront,
+        translation: newBack,
+      });
+
+      // Odśwież listę fiszek
+      const url = currentCategoryId ? `/flashcards?categoryId=${currentCategoryId}` : '/flashcards';
+      const res = await api.get(url);
+      setExerciseFlashcards(res.data);
+
+      setIsEditingModalOpen(false);
+      setEditingFlashcardId(null);
+      setNewFront('');
+      setNewBack('');
+    } catch (err) {
+      console.error('Nie udało się edytować fiszki', err);
+      alert('Wystąpił błąd podczas edycji fiszki.');
     }
   };
 
@@ -75,7 +109,7 @@ export default function App() {
   // Tryb interaktywny (Fiszki / FlashcardViewer)
   if (currentView === 'interactive') {
     return (
-      <div style={{ maxWidth: '800px', margin: '3rem auto', padding: '0 2rem' }}>
+      <div style={{ maxWidth: '800px', margin: '3rem auto', padding: '0 2rem', position: 'relative' }}>
         <button 
           onClick={() => setCurrentView('exercises-hub')} 
           style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: 600, cursor: 'pointer', marginBottom: '1.5rem' }}
@@ -98,10 +132,53 @@ export default function App() {
             }
           }}
           onEdit={(flashcard) => {
-            // Opcjonalna obsługa edycji w tym widoku lub powrót do dashboardu
-            setCurrentView('dashboard');
+            setEditingFlashcardId(flashcard.id);
+            setNewFront(flashcard.word || (flashcard as any).front || '');
+            setNewBack(flashcard.translation || (flashcard as any).back || '');
+            setIsEditingModalOpen(true);
           }}
         />
+
+        {/* Modal edycji fiszki */}
+        {isEditingModalOpen && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modalContent}>
+              <div style={styles.modalHeader}>
+                <div style={styles.modalTitleBox}>
+                  <BookOpen size={20} color="#4f46e5" />
+                  <h3 style={styles.modalTitle}>Edytuj fiszkę</h3>
+                </div>
+                <button onClick={() => setIsEditingModalOpen(false)} style={styles.btnClose}>
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={handleSaveEditedFlashcard} style={styles.modalForm}>
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Pojęcie (Front)</label>
+                  <input 
+                    autoFocus
+                    type="text" 
+                    value={newFront} 
+                    onChange={e => setNewFront(e.target.value)} 
+                    style={styles.input} 
+                  />
+                </div>
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Tłumaczenie (Tył)</label>
+                  <textarea 
+                    value={newBack} 
+                    onChange={e => setNewBack(e.target.value)} 
+                    style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} 
+                  />
+                </div>
+                <div style={styles.modalFooter}>
+                  <button type="button" onClick={() => setIsEditingModalOpen(false)} style={styles.btnCancel}>Anuluj</button>
+                  <button type="submit" disabled={!newFront || !newBack} style={styles.btnSave}>Zapisz zmiany</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -122,3 +199,19 @@ export default function App() {
     />
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modalContent: { width: '100%', maxWidth: '450px', backgroundColor: '#ffffff', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' },
+  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
+  modalTitleBox: { display: 'flex', alignItems: 'center', gap: '10px' },
+  modalTitle: { margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' },
+  btnClose: { background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' },
+  modalForm: { display: 'flex', flexDirection: 'column', gap: '1.25rem' },
+  inputGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  label: { fontSize: '13px', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  input: { padding: '12px 16px', borderRadius: '10px', border: '2px solid #e2e8f0', fontSize: '15px', color: '#0f172a', backgroundColor: '#ffffff', outline: 'none' }, 
+  modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '1rem' },
+  btnCancel: { padding: '10px 16px', background: 'transparent', border: 'none', color: '#64748b', fontWeight: 600, cursor: 'pointer' },
+  btnSave: { padding: '10px 20px', background: '#4f46e5', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: '600', cursor: 'pointer' }
+};
