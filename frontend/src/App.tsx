@@ -1,6 +1,6 @@
-import { AuthScreen } from './screens/AuthScreen';
-import { HomeScreen } from './screens/HomeScreen';
 import { useState } from 'react';
+import { WelcomeScreen } from './screens/WelcomeScreen';
+import { DashboardScreen } from './screens/DashboardScreen';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -10,9 +10,11 @@ export default function App() {
     setToken(null);
   };
 
+  // Jeśli użytkownik nie jest zalogowany, pokazujemy ekran powitalny z logowaniem/rejestracją
   if (!token) {
-    return <AuthScreen onLoginSuccess={(newToken) => setToken(newToken)} />;
+    return <WelcomeScreen onLoginSuccess={(newToken) => setToken(newToken)} />;
   }
 
-  return <HomeScreen onLogout={handleLogout} />;
+  // Jeśli ma token, wpuszczamy go do panelu z fiszkami
+  return <DashboardScreen onLogout={handleLogout} />;
 }

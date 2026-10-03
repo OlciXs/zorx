@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Plus } from 'lucide-react';
+import { Layers, Plus, Trash2 } from 'lucide-react';
 import type { Category } from '../types';
 
 interface CategorySidebarProps {
@@ -7,6 +7,7 @@ interface CategorySidebarProps {
   selectedCategoryId: string;
   onSelectCategory: (id: string) => void;
   onCreateCategory: (name: string) => void;
+  onDeleteCategory: (id: string) => void; // Dodany props!
 }
 
 export const CategorySidebar: React.FC<CategorySidebarProps> = ({
@@ -14,6 +15,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   selectedCategoryId,
   onSelectCategory,
   onCreateCategory,
+  onDeleteCategory, // Odebrany props!
 }) => {
   const [newCategoryName, setNewCategoryName] = useState('');
 
@@ -54,17 +56,30 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         >
           Wszystkie fiszki
         </button>
+        
         {categories.map((cat) => (
-          <button
-            key={cat.id}
-            style={{
-              ...styles.catItem,
-              ...(selectedCategoryId === cat.id ? styles.catItemActive : {}),
-            }}
-            onClick={() => onSelectCategory(cat.id)}
-          >
-            {cat.name}
-          </button>
+          <div key={cat.id} style={styles.catRow}>
+            <button
+              style={{
+                ...styles.catItem,
+                ...(selectedCategoryId === cat.id ? styles.catItemActive : {}),
+                flex: 1, // Pozwala przyciskowi zająć resztę miejsca
+              }}
+              onClick={() => onSelectCategory(cat.id)}
+            >
+              {cat.name}
+            </button>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation(); // Zapobiega kliknięciu w kategorię pod spodem
+                onDeleteCategory(cat.id);
+              }}
+              style={styles.btnCatDelete}
+              title="Usuń kategorię"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
         ))}
       </div>
     </aside>
@@ -79,6 +94,8 @@ const styles: Record<string, React.CSSProperties> = {
   catInput: { flex: 1, padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' },
   btnCatAdd: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#4f46e5', color: '#fff', cursor: 'pointer' },
   catList: { display: 'flex', flexDirection: 'column', gap: '4px' },
-  catItem: { width: '100%', textAlign: 'left', padding: '10px 12px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#475569', cursor: 'pointer', fontSize: '14px' },
+  catRow: { display: 'flex', alignItems: 'center', gap: '4px' }, // Dodany flex dla wiersza
+  catItem: { textAlign: 'left', padding: '10px 12px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#475569', cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s' },
   catItemActive: { backgroundColor: '#e0e7ff', color: '#4338ca', fontWeight: 600 },
+  btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }, // Styl przycisku usuwania
 };
