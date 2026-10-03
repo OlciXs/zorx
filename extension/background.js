@@ -1,3 +1,8 @@
+// ======== KONFIGURACJA ========
+const API_URL = 'https://zorx-backend.onrender.com';
+
+// ======== MENU KONTEKSTOWE ========
+
 chrome.runtime.onInstalled.addListener(() => {
   // Menu główne
   chrome.contextMenus.create({
@@ -23,6 +28,8 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+// ======== TŁUMACZENIE ========
+
 async function translateText(text) {
   try {
     const resEn = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(text)}`);
@@ -41,6 +48,70 @@ async function translateText(text) {
     return "brak tłumaczenia";
   }
 }
+
+// ======== WYSYŁANIE DO API ========
+
+async function sendFlashcardToAPI(word, translation) {
+  try {
+    const result = await chrome.storage.local.get({ authToken: null });
+    
+    if (!result.authToken) {
+      console.log('Brak tokena — fiszka zapisana tylko lokalnie.');
+      return false;
+    }
+
+    const response = await fetch(`${API_URL}/flashcards`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${result.authToken}`,
+      },
+      body: JSON.stringify({ word, translation }),
+    });
+
+    if (response.status === 401) {
+      // Token wygasł
+      await chrome.storage.local.remove(['authToken', 'userEmail']);
+      console.warn('Token wygasł. Wylogowano.');
+      return false;
+    }
+
+    if (!response.ok) {
+      console.error('Błąd wysyłania fiszki:', response.statusText);
+      return false;
+    }
+
+    console.log('✅ Fiszka wysłana do bazy:', word, '->', translation);
+    return true;
+  } catch (err) {
+    console.error('Błąd połączenia z API:', err);
+    return false;
+  }
+}
+
+// ======== FUNKCJA ZAPISU ========
+
+function saveWord(originalWord, definitionText) {
+  chrome.storage.local.get({ savedWords: [] }, async (result) => {
+    const words = result.savedWords;
+    
+    const exists = words.some(item => 
+      (typeof item === 'string' ? item : item.original).toLowerCase() === originalWord.toLowerCase()
+    );
+
+    if (!exists) {
+      // Spróbuj wysłać do API
+      const synced = await sendFlashcardToAPI(originalWord, definitionText);
+      
+      words.push({ original: originalWord, translation: definitionText, synced: synced });
+      chrome.storage.local.set({ savedWords: words }, () => {
+        console.log("Zapisano:", originalWord, "->", definitionText, synced ? "(zsynchronizowano)" : "(tylko lokalnie)");
+      });
+    }
+  });
+}
+
+// ======== MODAL DEFINICJI (wstrzykiwany do strony) ========
 
 // Funkcja wstrzykiwana bezpośrednio do przeglądanej strony
 function showCustomDefinitionModal(selectedText) {
@@ -130,8 +201,15 @@ function showCustomDefinitionModal(selectedText) {
         );
 
         if (!exists) {
-          words.push({ original: selectedText, translation: definition });
+          // Zapisujemy jako niesynchronizowane — synchronizacja nastąpi w background.js
+          words.push({ original: selectedText, translation: definition, synced: false });
           chrome.storage.local.set({ savedWords: words }, () => {
+            // Wyślij wiadomość do service workera, żeby zsynchronizował
+            chrome.runtime.sendMessage({ 
+              action: 'syncWord', 
+              word: selectedText, 
+              translation: definition 
+            });
             modal.remove();
           });
         } else {
@@ -145,6 +223,8 @@ function showCustomDefinitionModal(selectedText) {
     modal.remove();
   });
 }
+
+// ======== OBSŁUGA MENU KONTEKSTOWEGO ========
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const selectedText = info.selectionText ? info.selectionText.trim() : "";
@@ -163,19 +243,25 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 });
 
-function saveWord(originalWord, definitionText) {
-  chrome.storage.local.get({ savedWords: [] }, (result) => {
-    const words = result.savedWords;
-    
-    const exists = words.some(item => 
-      (typeof item === 'string' ? item : item.original).toLowerCase() === originalWord.toLowerCase()
-    );
+// ======== OBSŁUGA WIADOMOŚCI Z CONTENT SCRIPT ========
 
-    if (!exists) {
-      words.push({ original: originalWord, translation: definitionText });
-      chrome.storage.local.set({ savedWords: words }, () => {
-        console.log("Zapisano:", originalWord, "->", definitionText);
-      });
-    }
-  });
-}
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'syncWord') {
+    // Próbuj zsynchronizować słowo dodane z modala na stronie
+    sendFlashcardToAPI(message.word, message.translation).then(synced => {
+      if (synced) {
+        // Zaktualizuj flagę synced w storage
+        chrome.storage.local.get({ savedWords: [] }, (result) => {
+          const words = result.savedWords;
+          const idx = words.findIndex(item => 
+            typeof item === 'object' && item.original.toLowerCase() === message.word.toLowerCase()
+          );
+          if (idx !== -1) {
+            words[idx].synced = true;
+            chrome.storage.local.set({ savedWords: words });
+          }
+        });
+      }
+    });
+  }
+});
