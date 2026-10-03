@@ -1,4 +1,3 @@
-// DashboardScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 import type { Category, Flashcard } from '../types';
@@ -78,14 +77,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
     }
   };
 
-const handleAddFlashcard = async (e: React.FormEvent) => {
+  const handleAddFlashcard = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFront.trim() || !newBack.trim()) return;
 
     try {
       await api.post('/flashcards', {
-        word: newFront,          // Zmieniono z 'front' na 'word' zgodne z DTO i types.ts
-        translation: newBack,    // Zmieniono z 'back' na 'translation' zgodne z DTO i types.ts
+        word: newFront,        // Poprawione pole zgodne z DTO i typami
+        translation: newBack,  // Poprawione pole zgodne z DTO i typami
         categoryId: selectedCategoryId || null
       });
       setNewFront('');
@@ -213,7 +212,6 @@ const handleAddFlashcard = async (e: React.FormEvent) => {
 
 const styles: Record<string, React.CSSProperties> = {
   appBg: { minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, sans-serif' },
-  // Zwiększona szerokość maksymalna, żeby aplikacja ładnie rozchodziła się na dużych ekranach
   mainLayout: { display: 'flex', maxWidth: '1500px', margin: '2rem auto', gap: '2.5rem', padding: '0 2.5rem' },
   sidebarWrapper: { width: '280px', flexShrink: 0 },
   contentArea: { flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 },
