@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Zapisywacz Słów",
+  "version": "1.3",
+  "description": "Zapisuje i tłumaczy słowa lub pozwala dodać własną definicję.",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://translate.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
