@@ -1,6 +1,6 @@
 import { theme } from '../themes';
 import React, { useState } from 'react';
-import { Layers, Plus, Trash2, Sparkles, WandSparkles, Merge, LoaderCircle } from 'lucide-react';
+import { Layers, Plus, Trash2, Sparkles, WandSparkles, Merge, LoaderCircle, X } from 'lucide-react';
 import type { Category, Flashcard } from '../types';
 import { api } from '../api';
 
@@ -33,7 +33,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'bielik-minitron-7b-v3.0-instruct@q5_k_m',
+        model: 'speakleash_bielik-11b-v3.0-instruct',
         system_prompt: systemPrompt,
         input,
       }),
@@ -82,6 +82,10 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
     } finally {
       setLoadingAction(null);
     }
+  };
+
+  const dismissSuggestion = (suggestion: { name: string; cardIds: string[] }) => {
+    setSuggestions((current) => current.filter((item) => item !== suggestion));
   };
 
   const matchExistingCategories = async () => {
@@ -232,10 +236,21 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
           {suggestions.map((suggestion) => (
             <div key={suggestion.name} style={styles.suggestion}>
               <span>{suggestion.name} ({suggestion.cardIds.length})</span>
-              <button onClick={() => acceptSuggestion(suggestion)} style={styles.acceptButton} disabled={!!loadingAction}>
-                {loadingAction === `accept-${suggestion.name}` && <LoaderCircle size={12} style={styles.spinner} />}
-                {loadingAction === `accept-${suggestion.name}` ? 'Zapisuję...' : 'Akceptuj'}
-              </button>
+              <div style={styles.suggestionActions}>
+                <button onClick={() => acceptSuggestion(suggestion)} style={styles.acceptButton} disabled={!!loadingAction}>
+                  {loadingAction === `accept-${suggestion.name}` && <LoaderCircle size={12} style={styles.spinner} />}
+                  {loadingAction === `accept-${suggestion.name}` ? 'Zapisuję...' : 'Akceptuj'}
+                </button>
+                <button
+                  onClick={() => dismissSuggestion(suggestion)}
+                  style={styles.dismissButton}
+                  disabled={!!loadingAction}
+                  title="Odrzuć propozycję"
+                  aria-label={`Odrzuć propozycję kategorii ${suggestion.name}`}
+                >
+                  <X size={14} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -274,7 +289,9 @@ const styles: Record<string, React.CSSProperties> = {
   checkboxLabel: { display: 'flex', alignItems: 'center', gap: '6px', color: theme.colors.textBody, fontSize: '12px' },
   suggestions: { display: 'flex', flexDirection: 'column', gap: '7px', marginTop: '10px', padding: '9px', borderRadius: '8px', backgroundColor: theme.colors.primarySoft },
   suggestion: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px', color: theme.colors.textBody, fontSize: '12px' },
+  suggestionActions: { display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 },
   acceptButton: { padding: '5px 7px', border: 'none', borderRadius: '6px', backgroundColor: theme.colors.primary, color: theme.colors.white, cursor: 'pointer', fontSize: '11px', fontWeight: 600 },
+  dismissButton: { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5px', border: `1px solid ${theme.colors.borderStrong}`, borderRadius: '6px', backgroundColor: theme.colors.white, color: theme.colors.textMuted, cursor: 'pointer' },
   message: { margin: '9px 0 0', color: theme.colors.textMuted, fontSize: '11px', lineHeight: 1.4 },
   spinner: { animation: 'spin 0.8s linear infinite' },
 };

@@ -24,7 +24,7 @@ export const LlmWriteScreen: React.FC<LlmWriteScreenProps> = ({ flashcards, onBa
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "bielik-minitron-7b-v3.0-instruct",
+          model: "speakleash_bielik-11b-v3.0-instruct",
           system_prompt: "Act as a strict but encouraging English teacher. Answer in Polish with exactly one or two sentences. No useless words. Focus on keyword and grammar.",
           input: `The user was tasked to write a sentence using the English word '${selectedWord.word} or it's conjugated form'. They wrote: '${userSentence}'. Check precisely if the grammar is correct and if the word was used properly. Tell them what is wrong or praise them if it's correct. Be careful to not make any mistakes and answer in Polish.`
         })

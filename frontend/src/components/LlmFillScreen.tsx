@@ -28,7 +28,7 @@ export const LlmFillScreen: React.FC<LlmFillScreenProps> = ({ flashcards, onBack
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "bielik-minitron-7b-v3.0-instruct",
+          model: "speakleash_bielik-11b-v3.0-instruct",
             system_prompt: "Answer only with one English sentence and nothing more.",
             input: `Create a sentence using word '${selectedWord.word}' but don't write this word or its conjugated form - use '___' instead.`
         })

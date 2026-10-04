@@ -28,7 +28,7 @@ const handleGenerate = async () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "bielik-minitron-7b-v3.0-instruct",
+          model: "speakleash_bielik-11b-v3.0-instruct",
           system_prompt: "Answer with 3 distinct English sentences demonstrating the word, each on a new line. Each sentence must not be longer than 10 words. Don't add any conversational filler, only the sentences.",
           input: `Create 3 different creative but simple sentences that show the use of the word '${selectedWord.word}'.`
         })

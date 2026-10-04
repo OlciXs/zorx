@@ -24,7 +24,7 @@ export const LlmImpostorScreen: React.FC<LlmImpostorScreenProps> = ({ flashcards
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "bielik-minitron-7b-v3.0-instruct",
+          model: "speakleash_bielik-11b-v3.0-instruct",
           system_prompt: "Output exactly 4 English words separated by commas and nothing else. No intro, no outro.",
           input: `Generate exactly 4 single English words separated by commas. The first 3 must be synonyms or words very closely related to '${selectedWord.word}'. The 4th MUST be a completely unrelated, random word (the impostor).`
         })
