@@ -291,8 +291,35 @@
       --danger-soft: #fff0f3;
     }
 
-    body { background: var(--page); color: var(--text); }
-    #authSection { background: var(--surface-muted); border-color: var(--border); border-radius: 14px; padding: 12px; }
+    body {
+      background: var(--page);
+      color: var(--text);
+      padding: 0 14px 14px;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      display: block;
+      height: 6px;
+      margin: 0 -14px 14px;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary-light), #ff8acb);
+    }
+    body::after {
+      content: 'FLIPIFY';
+      display: block;
+      margin: 0 0 14px;
+      color: var(--primary-dark);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+    #authSection {
+      background: linear-gradient(135deg, var(--surface), var(--surface-muted));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(154, 0, 88, 0.08);
+    }
     #authSection h4 { color: var(--text); }
     #authSection input, .modal-content input {
       background: var(--surface);
@@ -305,7 +332,10 @@
       outline: 2px solid var(--primary-soft);
       border-color: var(--primary);
     }
-    .btn-login, .sync-all-btn { background: var(--primary); }
+    .btn-login, .sync-all-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      box-shadow: 0 5px 12px rgba(209, 0, 120, 0.2);
+    }
     .btn-login:hover, .sync-all-btn:hover { background: var(--primary-dark); }
     .btn-logout { background: var(--primary-soft); color: var(--primary-dark); }
     .btn-logout:hover { background: #ffc7e2; }
@@ -316,14 +346,19 @@
     #loggedInInfo, .word-translation { color: var(--text-body); }
     #loggedInInfo .user-email, .word-original { color: var(--text); }
     .sync-all-btn:disabled { background: var(--border-strong); }
-    ul { background: var(--surface); border-color: var(--border); border-radius: 12px; }
+    ul {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(154, 0, 88, 0.08);
+    }
     li { border-bottom-color: var(--border); }
     .word-translation { color: var(--text-muted); }
     .word-synced { color: var(--success); }
     .word-not-synced { color: var(--danger); }
-    .action-btn { background: var(--surface-muted); border-color: var(--border); color: var(--primary-dark); border-radius: 7px; }
+    .action-btn { background: var(--surface-muted); border-color: var(--border-strong); color: var(--primary-dark); border-radius: 7px; }
     .action-btn:hover { background: var(--primary-soft); }
-    .clear-btn { background: var(--danger); border-radius: 8px; }
+    .clear-btn { background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 10px; box-shadow: 0 5px 12px rgba(209, 0, 120, 0.22); }
     .clear-btn:hover { background: #b5224a; }
     .empty { color: var(--text-muted); }
     #editModal { background: rgba(74, 13, 49, 0.35); backdrop-filter: blur(3px); }

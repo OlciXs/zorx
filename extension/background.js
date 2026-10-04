@@ -139,7 +139,7 @@ function showCustomDefinitionModal(selectedText) {
   // Zawartość okienka
   modal.innerHTML = `
     <div style="
-      background: #ffffff;
+      background: linear-gradient(145deg, #ffffff, #fff0f8);
       padding: 20px;
       border-radius: 16px;
       border: 1px solid #f0c9df;
@@ -148,6 +148,7 @@ function showCustomDefinitionModal(selectedText) {
       color: #24101d;
       box-sizing: border-box;
     ">
+      <div style="margin: -20px -20px 16px; padding: 12px 20px; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, #d10078, #f02b9f); color: #ffffff; font-size: 12px; font-weight: 800; letter-spacing: 1px;">FLIPIFY</div>
       <h3 style="margin-top:0; margin-bottom: 10px; font-size:15px; color:#24101d;">
         Definicja dla: <span style="color:#d10078;">"${selectedText}"</span>
       </h3>
@@ -173,7 +174,7 @@ function showCustomDefinitionModal(selectedText) {
         ">Anuluj</button>
         <button id="word-saver-save" style="
           padding: 6px 12px;
-          background: #d10078;
+          background: linear-gradient(135deg, #d10078, #f02b9f);
           color: white;
           border: none;
           border-radius: 8px;
