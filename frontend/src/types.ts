@@ -9,5 +9,5 @@ export interface Flashcard {
   translation: string;
   definition?: string;
   synonyms?: string[];
-  categoryId?: string;
+  categoryId?: string | null;
 }

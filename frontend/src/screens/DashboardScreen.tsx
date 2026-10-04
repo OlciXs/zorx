@@ -13,6 +13,7 @@ interface DashboardScreenProps {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onStartExercises }) => {
+  const uncategorizedId = 'uncategorized';
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
@@ -41,9 +42,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
 
   const fetchFlashcards = async (catId?: string) => {
     try {
-      const url = catId ? `/flashcards?categoryId=${catId}` : '/flashcards';
+      const url = catId && catId !== uncategorizedId
+        ? `/flashcards?categoryId=${catId}`
+        : '/flashcards';
       const res = await api.get(url);
-      setFlashcards(res.data);
+      const loadedFlashcards = res.data as Flashcard[];
+      setFlashcards(
+        catId === uncategorizedId
+          ? loadedFlashcards.filter((flashcard) => flashcard.categoryId == null)
+          : loadedFlashcards,
+      );
     } catch (err) {
       console.error('Błąd pobierania fiszek', err);
     }
@@ -93,7 +101,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
         await api.post('/flashcards', {
           word: newFront,
           translation: newBack,
-          categoryId: selectedCategoryId || null
+          categoryId: selectedCategoryId && selectedCategoryId !== uncategorizedId
+            ? selectedCategoryId
+            : null
         });
       }
       setNewFront('');
@@ -107,7 +117,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
     }
   };
 
-  const currentCategoryName = selectedCategoryId 
+  const currentCategoryName = selectedCategoryId === uncategorizedId
+    ? 'Bez kategorii'
+    : selectedCategoryId 
     ? categories.find(c => c.id === selectedCategoryId)?.name 
     : 'Wszystkie fiszki';
 
@@ -123,6 +135,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
             onSelectCategory={setSelectedCategoryId}
             onCreateCategory={handleCreateCategory}
             onDeleteCategory={handleDeleteCategory}
+            onRefresh={() => {
+              fetchCategories();
+              fetchFlashcards(selectedCategoryId);
+            }}
           />
         </div>
 

@@ -37,14 +37,23 @@ export default function App() {
   const handleStartExercises = async (categoryId: string) => {
     try {
       setCurrentCategoryId(categoryId);
-      const url = categoryId ? `/flashcards?categoryId=${categoryId}` : '/flashcards';
+      const url = categoryId && categoryId !== 'uncategorized'
+        ? `/flashcards?categoryId=${categoryId}`
+        : '/flashcards';
       const res = await api.get(url);
-      setExerciseFlashcards(res.data);
+      const loadedFlashcards = res.data as Flashcard[];
+      setExerciseFlashcards(
+        categoryId === 'uncategorized'
+          ? loadedFlashcards.filter((flashcard) => flashcard.categoryId == null)
+          : loadedFlashcards,
+      );
 
-      if (categoryId) {
+      if (categoryId && categoryId !== 'uncategorized') {
         const catRes = await api.get('/categories');
         const found = catRes.data.find((c: Category) => c.id === categoryId);
         setExerciseCategoryName(found ? found.name : 'Wybrana kategoria');
+      } else if (categoryId === 'uncategorized') {
+        setExerciseCategoryName('Bez kategorii');
       } else {
         setExerciseCategoryName('Wszystkie fiszki');
       }
@@ -66,9 +75,16 @@ export default function App() {
         translation: newBack,
       });
 
-      const url = currentCategoryId ? `/flashcards?categoryId=${currentCategoryId}` : '/flashcards';
+      const url = currentCategoryId && currentCategoryId !== 'uncategorized'
+        ? `/flashcards?categoryId=${currentCategoryId}`
+        : '/flashcards';
       const res = await api.get(url);
-      setExerciseFlashcards(res.data);
+      const loadedFlashcards = res.data as Flashcard[];
+      setExerciseFlashcards(
+        currentCategoryId === 'uncategorized'
+          ? loadedFlashcards.filter((flashcard) => flashcard.categoryId == null)
+          : loadedFlashcards,
+      );
 
       setIsEditingModalOpen(false);
       setEditingFlashcardId(null);

@@ -1,7 +1,8 @@
 import { theme } from '../themes';
 import React, { useState } from 'react';
-import { Layers, Plus, Trash2 } from 'lucide-react';
-import type { Category } from '../types';
+import { Layers, Plus, Trash2, Sparkles, WandSparkles, Merge } from 'lucide-react';
+import type { Category, Flashcard } from '../types';
+import { api } from '../api';
 
 interface CategorySidebarProps {
   categories: Category[];
@@ -9,6 +10,7 @@ interface CategorySidebarProps {
   onSelectCategory: (id: string) => void;
   onCreateCategory: (name: string) => void;
   onDeleteCategory: (id: string) => void;
+  onRefresh: () => void;
 }
 
 export const CategorySidebar: React.FC<CategorySidebarProps> = ({
@@ -17,8 +19,113 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onSelectCategory,
   onCreateCategory,
   onDeleteCategory,
+  onRefresh,
 }) => {
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [suggestions, setSuggestions] = useState<Array<{ name: string; cardIds: string[] }>>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [mergeName, setMergeName] = useState('');
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [message, setMessage] = useState('');
+
+  const callLlm = async (input: string, systemPrompt: string) => {
+    const response = await fetch('http://6.tcp.eu.ngrok.io:10686/api/v1/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'bielik-minitron-7b-v3.0-instruct@q5_k_m',
+        system_prompt: systemPrompt,
+        input,
+      }),
+    });
+    if (!response.ok) throw new Error('LLM error');
+    const data = await response.json();
+    return data.output?.[0]?.content?.trim() || '';
+  };
+
+  const getFlashcards = async (categoryId?: string) => {
+    const response = await api.get(categoryId ? `/flashcards?categoryId=${categoryId}` : '/flashcards');
+    return response.data as Flashcard[];
+  };
+
+  const suggestCategories = async () => {
+    setLoadingAction('suggest');
+    setMessage('');
+    try {
+      const cards = (await getFlashcards()).filter((card) => card.categoryId == null);
+      if (!cards.length) {
+        setMessage('Brak fiszek bez kategorii.');
+        return;
+      }
+      const result = await callLlm(
+        JSON.stringify(cards.map(({ id, word, translation }) => ({ id, word, translation }))),
+        'Pogrupuj fiszki w sensowne kategorie. Zwróć wyłącznie JSON tablicę obiektów {"name":"nazwa","cardIds":["id"]}. Nie pomijaj fiszek.',
+      );
+      const parsed = JSON.parse(result.replace(/```json|```/g, '').trim()) as Array<{ name: string; cardIds: string[] }>;
+      setSuggestions(parsed.filter((item) => item.name && item.cardIds?.length));
+    } catch {
+      setMessage('Nie udało się wygenerować propozycji kategorii.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const acceptSuggestion = async (suggestion: { name: string; cardIds: string[] }) => {
+    setLoadingAction(`accept-${suggestion.name}`);
+    try {
+      const category = await api.post('/categories', { name: suggestion.name });
+      await Promise.all(suggestion.cardIds.map((id) => api.patch(`/flashcards/${id}`, { categoryId: category.data.id })));
+      setSuggestions((current) => current.filter((item) => item !== suggestion));
+      onRefresh();
+    } catch {
+      setMessage('Nie udało się zaakceptować propozycji.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const matchExistingCategories = async () => {
+    setLoadingAction('match');
+    setMessage('');
+    try {
+      const cards = (await getFlashcards()).filter((card) => card.categoryId == null);
+      if (!cards.length || !categories.length) {
+        setMessage(!cards.length ? 'Brak fiszek bez kategorii.' : 'Najpierw utwórz kategorię.');
+        return;
+      }
+      const result = await callLlm(
+        JSON.stringify({ categories: categories.map(({ id, name }) => ({ id, name })), cards: cards.map(({ id, word, translation }) => ({ id, word, translation })) }),
+        'Dopasuj każdą fiszkę do jednej z istniejących kategorii. Zwróć wyłącznie JSON tablicę obiektów {"cardId":"id","categoryId":"id"}. Pomijaj tylko całkowicie niedopasowane fiszki.',
+      );
+      const matches = JSON.parse(result.replace(/```json|```/g, '').trim()) as Array<{ cardId: string; categoryId: string }>;
+      await Promise.all(matches.map((match) => api.patch(`/flashcards/${match.cardId}`, { categoryId: match.categoryId })));
+      setMessage(`Dopasowano ${matches.length} fiszek.`);
+      onRefresh();
+    } catch {
+      setMessage('Nie udało się dopasować fiszek.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const mergeCategories = async () => {
+    if (selectedCategoryIds.length < 2 || !mergeName.trim()) return;
+    setLoadingAction('merge');
+    try {
+      const target = await api.post('/categories', { name: mergeName.trim() });
+      const cards = (await Promise.all(selectedCategoryIds.map((id) => getFlashcards(id)))).flat();
+      await Promise.all(cards.map((card) => api.patch(`/flashcards/${card.id}`, { categoryId: target.data.id })));
+      await Promise.all(selectedCategoryIds.map((id) => api.delete(`/categories/${id}`)));
+      setSelectedCategoryIds([]);
+      setMergeName('');
+      setMessage('Kategorie zostały połączone.');
+      onRefresh();
+    } catch {
+      setMessage('Nie udało się połączyć kategorii.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +164,16 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         >
           Wszystkie fiszki
         </button>
+
+        <button
+          style={{
+            ...styles.catItem,
+            ...(selectedCategoryId === 'uncategorized' ? styles.catItemActive : {}),
+          }}
+          onClick={() => onSelectCategory('uncategorized')}
+        >
+          Bez kategorii
+        </button>
         
         {categories.map((cat) => (
           <div key={cat.id} style={styles.catRow}>
@@ -83,6 +200,39 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
           </div>
         ))}
       </div>
+
+      <div style={styles.tools}>
+        <button onClick={suggestCategories} style={styles.toolButton} disabled={!!loadingAction}>
+          <Sparkles size={15} /> Zaproponuj kategorie AI
+        </button>
+        <button onClick={matchExistingCategories} style={styles.toolButton} disabled={!!loadingAction}>
+          <WandSparkles size={15} /> Dopasuj do kategorii
+        </button>
+        <div style={styles.mergeBox}>
+          <strong style={styles.toolTitle}><Merge size={15} /> Połącz kategorie</strong>
+          {categories.map((category) => (
+            <label key={category.id} style={styles.checkboxLabel}>
+              <input type="checkbox" checked={selectedCategoryIds.includes(category.id)} onChange={() => setSelectedCategoryIds((current) => current.includes(category.id) ? current.filter((id) => id !== category.id) : [...current, category.id])} />
+              {category.name}
+            </label>
+          ))}
+          <input value={mergeName} onChange={(event) => setMergeName(event.target.value)} placeholder="Nowa nazwa..." style={styles.catInput} />
+          <button onClick={mergeCategories} style={styles.toolButton} disabled={!!loadingAction || selectedCategoryIds.length < 2 || !mergeName.trim()}>Połącz wybrane</button>
+        </div>
+      </div>
+
+      {suggestions.length > 0 && (
+        <div style={styles.suggestions}>
+          <strong style={styles.toolTitle}><Sparkles size={15} /> Propozycje AI</strong>
+          {suggestions.map((suggestion) => (
+            <div key={suggestion.name} style={styles.suggestion}>
+              <span>{suggestion.name} ({suggestion.cardIds.length})</span>
+              <button onClick={() => acceptSuggestion(suggestion)} style={styles.acceptButton} disabled={!!loadingAction}>Akceptuj</button>
+            </div>
+          ))}
+        </div>
+      )}
+      {message && <p style={styles.message}>{message}</p>}
     </aside>
   );
 };
@@ -109,4 +259,13 @@ const styles: Record<string, React.CSSProperties> = {
   catItem: { textAlign: 'left', padding: '10px 12px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: theme.colors.textBody, cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s' },
   catItemActive: { backgroundColor: theme.colors.primarySoft, color: theme.colors.primaryDark, fontWeight: 600 },
   btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: theme.colors.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' },
+  tools: { display: 'flex', flexDirection: 'column', gap: '7px', marginTop: '1.25rem', paddingTop: '1rem', borderTop: `1px solid ${theme.colors.border}` },
+  toolButton: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', width: '100%', padding: '8px', borderRadius: '8px', border: `1px solid ${theme.colors.border}`, background: theme.gradients.primary, color: theme.colors.white, cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
+  mergeBox: { display: 'flex', flexDirection: 'column', gap: '6px', padding: '9px', marginTop: '2px', borderRadius: '8px', backgroundColor: theme.colors.surfaceMuted },
+  toolTitle: { display: 'flex', alignItems: 'center', gap: '5px', color: theme.colors.textStrong, fontSize: '12px' },
+  checkboxLabel: { display: 'flex', alignItems: 'center', gap: '6px', color: theme.colors.textBody, fontSize: '12px' },
+  suggestions: { display: 'flex', flexDirection: 'column', gap: '7px', marginTop: '10px', padding: '9px', borderRadius: '8px', backgroundColor: theme.colors.primarySoft },
+  suggestion: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px', color: theme.colors.textBody, fontSize: '12px' },
+  acceptButton: { padding: '5px 7px', border: 'none', borderRadius: '6px', backgroundColor: theme.colors.primary, color: theme.colors.white, cursor: 'pointer', fontSize: '11px', fontWeight: 600 },
+  message: { margin: '9px 0 0', color: theme.colors.textMuted, fontSize: '11px', lineHeight: 1.4 },
 };

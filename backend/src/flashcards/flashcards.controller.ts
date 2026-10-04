@@ -34,7 +34,7 @@ export class FlashcardsController {
 
   @Get()
   @ApiOperation({ summary: 'Pobieranie wszystkich fiszek użytkownika' })
-  @ApiQuery({ name: 'categoryId', required: false, description: 'Filtruj fiszki po ID kategorii' })
+  @ApiQuery({ name: 'categoryId', required: false, description: 'Filtruj fiszki po ID kategorii lub użyj "uncategorized" dla fiszek bez kategorii' })
   findAll(
     @Request() req: any,
     @Query('categoryId') categoryId?: string,

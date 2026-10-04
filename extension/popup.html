@@ -7,14 +7,17 @@
     body {
       width: 340px;
       margin: 0;
-      padding: 12px;
-      font-family: Arial, sans-serif;
+      padding: 0 14px 14px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       position: relative;
+      background: #fff7fc;
+      color: #24101d;
     }
     h3 {
       margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 16px;
+      margin-bottom: 12px;
+      font-size: 17px;
+      color: #3b172e;
     }
 
     /* Sekcja logowania */
@@ -270,6 +273,83 @@
       background-color: #94a3b8;
       cursor: not-allowed;
     }
+
+    /* Flipify magenta theme */
+    body { background: #fff7fc; color: #24101d; }
+    body::before {
+      content: '';
+      display: block;
+      height: 6px;
+      margin: 0 -14px 14px;
+      background: linear-gradient(90deg, #9a0058, #d10078, #f02b9f);
+    }
+    body::after {
+      content: 'FLIPIFY';
+      display: block;
+      margin: 0 0 14px;
+      color: #9a0058;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+    button, input { font-family: inherit; }
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid #ffe0f1;
+      outline-offset: 1px;
+    }
+    #authSection {
+      background: linear-gradient(135deg, #ffffff, #fff0f8);
+      border: 1px solid #f0c9df;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(154, 0, 88, 0.08);
+    }
+    #authSection h4, .modal-content h4 { color: #3b172e; }
+    #authSection input, .modal-content input {
+      background: #ffffff;
+      color: #24101d;
+      border: 1px solid #df9fc3;
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .btn-login, .sync-all-btn, .btn-save {
+      background: linear-gradient(135deg, #d10078, #f02b9f);
+      box-shadow: 0 5px 12px rgba(209, 0, 120, 0.2);
+    }
+    .btn-login:hover, .sync-all-btn:hover, .btn-save:hover { background: #9a0058; }
+    .btn-logout { background: #ffe0f1; color: #9a0058; }
+    #loggedInInfo { color: #70445e; }
+    #loggedInInfo .user-email, .word-original { color: #24101d; }
+    .sync-indicator, .status-ok { background: #e0f8ed; color: #159669; }
+    .sync-indicator.disconnected, .status-error { background: #fff0f3; color: #dc315e; }
+    .status-info { background: #ffe0f1; color: #9a0058; }
+    ul {
+      background: #ffffff;
+      border: 1px solid #f0c9df;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(154, 0, 88, 0.08);
+    }
+    li { border-bottom-color: #f0c9df; }
+    .word-translation { color: #8d5a78; }
+    .word-synced { color: #159669; }
+    .word-not-synced { color: #dc315e; }
+    .action-btn { background: #fff0f8; border-color: #df9fc3; color: #9a0058; border-radius: 7px; }
+    .action-btn:hover { background: #ffe0f1; }
+    .clear-btn {
+      background: linear-gradient(135deg, #d10078, #f02b9f);
+      border-radius: 10px;
+      box-shadow: 0 5px 12px rgba(209, 0, 120, 0.22);
+    }
+    .empty { color: #8d5a78; }
+    #editModal { background: rgba(74, 13, 49, 0.35); backdrop-filter: blur(3px); }
+    .modal-content {
+      background: linear-gradient(145deg, #ffffff, #fff0f8);
+      border: 1px solid #f0c9df;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(154, 0, 88, 0.2);
+    }
+    .modal-label { color: #70445e; }
+    .btn-cancel { background: #fff0f8; color: #70445e; }
   </style>
 </head>
 <body>

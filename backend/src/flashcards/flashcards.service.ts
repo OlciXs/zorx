@@ -20,7 +20,11 @@ export class FlashcardsService {
     return this.prisma.flashcard.findMany({
       where: {
         userId,
-        ...(categoryId ? { categoryId } : {}),
+        ...(categoryId === 'uncategorized'
+          ? { categoryId: null }
+          : categoryId
+            ? { categoryId }
+            : {}),
       },
       include: {
         category: true,
