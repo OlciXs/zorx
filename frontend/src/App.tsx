@@ -26,6 +26,8 @@ export default function App() {
   const [editingFlashcardId, setEditingFlashcardId] = useState<string | null>(null);
   const [newFront, setNewFront] = useState('');
   const [newBack, setNewBack] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [editingCategoryId, setEditingCategoryId] = useState('');
   const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);
 
   const handleLogout = () => {
@@ -73,6 +75,7 @@ export default function App() {
       await api.patch(`/flashcards/${editingFlashcardId}`, {
         word: newFront,
         translation: newBack,
+        categoryId: editingCategoryId || null,
       });
 
       const url = currentCategoryId && currentCategoryId !== 'uncategorized'
@@ -90,9 +93,25 @@ export default function App() {
       setEditingFlashcardId(null);
       setNewFront('');
       setNewBack('');
+      setEditingCategoryId('');
     } catch (err) {
       console.error('Nie udało się edytować fiszki', err);
       alert('Wystąpił błąd podczas edycji fiszki.');
+    }
+  };
+
+  const handleEditFlashcard = async (flashcard: Flashcard) => {
+    try {
+      const response = await api.get('/categories');
+      setCategories(response.data as Category[]);
+      setEditingCategoryId(flashcard.categoryId ?? '');
+      setEditingFlashcardId(flashcard.id);
+      setNewFront(flashcard.word || (flashcard as any).front || '');
+      setNewBack(flashcard.translation || (flashcard as any).back || '');
+      setIsEditingModalOpen(true);
+    } catch (err) {
+      console.error('Nie udało się pobrać kategorii', err);
+      alert('Nie udało się pobrać kategorii. Spróbuj ponownie.');
     }
   };
 
@@ -155,12 +174,7 @@ export default function App() {
               alert('Wystąpił błąd podczas usuwania fiszki.');
             }
           }}
-          onEdit={(flashcard) => {
-            setEditingFlashcardId(flashcard.id);
-            setNewFront(flashcard.word || (flashcard as any).front || '');
-            setNewBack(flashcard.translation || (flashcard as any).back || '');
-            setIsEditingModalOpen(true);
-          }}
+          onEdit={handleEditFlashcard}
         />
 
         {isEditingModalOpen && (
@@ -193,6 +207,19 @@ export default function App() {
                     onChange={e => setNewBack(e.target.value)} 
                     style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} 
                   />
+                </div>
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Kategoria</label>
+                  <select
+                    value={editingCategoryId}
+                    onChange={e => setEditingCategoryId(e.target.value)}
+                    style={styles.input}
+                  >
+                    <option value="">Bez kategorii</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div style={styles.modalFooter}>
                   <button type="button" onClick={() => setIsEditingModalOpen(false)} style={styles.btnCancel}>Anuluj</button>

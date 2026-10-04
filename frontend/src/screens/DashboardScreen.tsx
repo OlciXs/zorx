@@ -22,6 +22,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
   const [editingFlashcardId, setEditingFlashcardId] = useState<string | null>(null);
   const [newFront, setNewFront] = useState('');
   const [newBack, setNewBack] = useState('');
+  const [editingCategoryId, setEditingCategoryId] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -96,6 +97,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
         await api.patch(`/flashcards/${editingFlashcardId}`, {
           word: newFront,
           translation: newBack,
+          categoryId: editingCategoryId || null,
         });
       } else {
         await api.post('/flashcards', {
@@ -108,6 +110,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
       }
       setNewFront('');
       setNewBack('');
+      setEditingCategoryId('');
       setIsAddingFlashcard(false);
       setEditingFlashcardId(null);
       fetchFlashcards(selectedCategoryId);
@@ -189,6 +192,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
                   setEditingFlashcardId(flashcard.id);
                   setNewFront(flashcard.word || (flashcard as any).front || '');
                   setNewBack(flashcard.translation || (flashcard as any).back || '');
+                  setEditingCategoryId(flashcard.categoryId ?? '');
                   setIsAddingFlashcard(true);
                 }}
               />
@@ -230,6 +234,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
                   style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} 
                 />
               </div>
+              {editingFlashcardId && (
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Kategoria</label>
+                  <select
+                    value={editingCategoryId}
+                    onChange={e => setEditingCategoryId(e.target.value)}
+                    style={styles.input}
+                  >
+                    <option value="">Bez kategorii</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div style={styles.modalFooter}>
                 <button type="button" onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); }} style={styles.btnCancel}>Anuluj</button>
                 <button type="submit" disabled={!newFront || !newBack} style={styles.btnSave}>{editingFlashcardId ? 'Zapisz zmiany' : 'Zapisz fiszkę'}</button>
