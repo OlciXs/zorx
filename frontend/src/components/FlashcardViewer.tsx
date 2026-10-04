@@ -1,6 +1,6 @@
 import { theme } from '../themes';
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Trash2, RotateCw, Edit2, BookOpen, List } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, RotateCw, Edit2, BookOpen, List, ArrowLeftRight } from 'lucide-react';
 import type { Flashcard } from '../types';
 
 interface FlashcardViewerProps {
@@ -14,6 +14,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
   const [isFlipped, setIsFlipped] = useState(false);
   const [showDefinition, setShowDefinition] = useState(false);
   const [showSynonyms, setShowSynonyms] = useState(false);
+  const [direction, setDirection] = useState<'en-pl' | 'pl-en'>('en-pl');
 
   useEffect(() => {
     if (currentIndex >= flashcards.length && flashcards.length > 0) {
@@ -46,14 +47,50 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
 
   const cardFrontText = currentCard.word || (currentCard as any).front || '';
   const cardBackText = currentCard.translation || (currentCard as any).back || '';
+  const isPolishToEnglish = direction === 'pl-en';
+  const frontText = isPolishToEnglish ? cardBackText : cardFrontText;
+  const backText = isPolishToEnglish ? cardFrontText : cardBackText;
+  const frontLanguage = isPolishToEnglish ? 'Polski' : 'Angielski';
+  const backLanguage = isPolishToEnglish ? 'Angielski' : 'Polski';
 
   return (
     <div style={styles.cardContainer}>
+      <div style={styles.directionBar} aria-label="Kierunek tłumaczenia">
+        <span style={styles.directionLabel}>
+          <ArrowLeftRight size={16} />
+          Uczę się:
+        </span>
+        <div style={styles.directionOptions} role="group" aria-label="Wybierz kierunek tłumaczenia">
+          {([
+            ['en-pl', 'Angielski → Polski'],
+            ['pl-en', 'Polski → Angielski'],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => {
+                setDirection(value);
+                setIsFlipped(false);
+                setShowDefinition(false);
+                setShowSynonyms(false);
+              }}
+              aria-pressed={direction === value}
+              style={{
+                ...styles.directionButton,
+                ...(direction === value ? styles.directionButtonActive : {}),
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div style={styles.flipCard} onClick={() => setIsFlipped(!isFlipped)}>
         {!isFlipped ? (
           <div style={styles.cardFront}>
-            <span style={styles.badgeFront}>Pojęcie / Słowo</span>
-            <h2 style={styles.wordFront}>{cardFrontText}</h2>
+            <span style={styles.badgeFront}>{frontLanguage}</span>
+            <h2 style={styles.wordFront}>{frontText}</h2>
             <div style={styles.flipHintContainer}>
               <RotateCw size={14} color={theme.colors.textSubtle} />
               <span style={styles.flipHint}>Kliknij kartę, aby obrócić i zobaczyć tłumaczenie</span>
@@ -61,8 +98,8 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
           </div>
         ) : (
           <div style={styles.cardBack}>
-            <span style={styles.badgeBack}>Tłumaczenie</span>
-            <h2 style={styles.wordBack}>{cardBackText}</h2>
+            <span style={styles.badgeBack}>{backLanguage}</span>
+            <h2 style={styles.wordBack}>{backText}</h2>
 
             <div style={styles.detailsActions}>
               {currentCard.definition && (
@@ -159,6 +196,46 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex', 
     flexDirection: 'column', 
     gap: '1.5rem' 
+  },
+  directionBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '12px',
+    flexWrap: 'wrap',
+    backgroundColor: theme.colors.white,
+    padding: '10px 14px',
+    borderRadius: '14px',
+    border: `1px solid ${theme.colors.border}`,
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
+  },
+  directionLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '7px',
+    color: theme.colors.textLabel,
+    fontSize: '13px',
+    fontWeight: 600,
+  },
+  directionOptions: {
+    display: 'flex',
+    gap: '6px',
+    flexWrap: 'wrap',
+  },
+  directionButton: {
+    padding: '8px 12px',
+    borderRadius: '9px',
+    border: `1px solid ${theme.colors.border}`,
+    backgroundColor: theme.colors.surfaceMuted,
+    color: theme.colors.textLabel,
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 600,
+  },
+  directionButtonActive: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+    color: theme.colors.white,
   },
   flipCard: { 
     minHeight: '400px', 
