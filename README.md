@@ -4,7 +4,7 @@ Polski asystent do nauki słówek zintegrowany z przeglądarką i web app. Proje
 
 ## Opis projektu
 
-Zorx pomaga użytkownikowi:
+Flipsy pomaga użytkownikowi:
 
 - zapisywać słowa i wyrażenia z dowolnej strony internetowej,
 - dodawać własne definicje i tłumaczenia,
@@ -169,33 +169,16 @@ Backend udostępnia API do:
 
 Pełna dokumentacja jest dostępna w Swaggerze po uruchomieniu backendu.
 
-<<<<<<< HEAD
-## Licencja
-
-Projekt jest udostępniany na licencji określonej w repozytorium. Jeśli chcesz, możesz dodać własną licencję, np. MIT, w osobnym pliku `LICENSE`.
-
-## Status projektu
-
-To jest wersja MVP / demonstracyjna z podstawowymi funkcjami nauki słówek. Można ją rozwijać o:
-
-- integrację z AI do generowania definicji i zdań,
-- lepszą analizę kontekstu,
-- system powtórek spaced repetition,
-- synchronizację offline i eksport danych.
-
----
-
-Jeśli chcesz, mogę od razu przygotować również wersję README bardziej "produkcyjną" (bardziej premium / startupowa), albo wersję w języku angielskim.
 
 ## English version
 
-# Zorx
+# Flipify
 
 Polish vocabulary learning assistant integrated with a browser extension and web app. The project combines a browser extension for saving words with a web application for learning flashcards, allowing users to collect new vocabulary while reading and then review it in a structured way.
 
 ## Project overview
 
-Zorx helps users:
+Flipify helps users:
 
 - save words and phrases from any website,
 - add their own definitions and translations,
@@ -359,22 +342,3 @@ The backend exposes APIs for:
 - adding, fetching, editing, and deleting flashcards.
 
 Full documentation is available in Swagger once the backend is running.
-
-## License
-
-The project is distributed under the license specified in the repository. You can add your own license, such as MIT, in a separate `LICENSE` file.
-
-## Project status
-
-This is an MVP / demo version with core vocabulary-learning features. It can be extended with:
-
-- AI integration for generating definitions and example sentences,
-- better context analysis,
-- spaced repetition system,
-- offline sync and data export.
-
----
-
-If you want, I can also prepare a more premium startup-style README or a fully English-only version.
-=======
->>>>>>> 4ee0c9a9c5fc8a4fa61d92cb306b1b3d28278ac7
