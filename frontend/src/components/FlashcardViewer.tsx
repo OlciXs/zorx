@@ -1,6 +1,6 @@
 import { theme } from '../themes';
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Trash2, RotateCw, Edit2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, RotateCw, Edit2, BookOpen, List } from 'lucide-react';
 import type { Flashcard } from '../types';
 
 interface FlashcardViewerProps {
@@ -12,12 +12,19 @@ interface FlashcardViewerProps {
 export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, onDelete, onEdit }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showDefinition, setShowDefinition] = useState(false);
+  const [showSynonyms, setShowSynonyms] = useState(false);
 
   useEffect(() => {
     if (currentIndex >= flashcards.length && flashcards.length > 0) {
       setCurrentIndex(flashcards.length - 1);
     }
   }, [flashcards.length, currentIndex]);
+
+  useEffect(() => {
+    setShowDefinition(false);
+    setShowSynonyms(false);
+  }, [currentIndex]);
 
   const currentCard = flashcards[currentIndex];
 
@@ -57,13 +64,32 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
             <span style={styles.badgeBack}>Tłumaczenie</span>
             <h2 style={styles.wordBack}>{cardBackText}</h2>
 
-            {currentCard.definition && (
+            <div style={styles.detailsActions}>
+              {currentCard.definition && (
+                <button
+                  onClick={(event) => { event.stopPropagation(); setShowDefinition((visible) => !visible); }}
+                  style={styles.detailButton}
+                >
+                  <BookOpen size={15} /> {showDefinition ? 'Ukryj opis' : 'Zobacz opis'}
+                </button>
+              )}
+              {currentCard.synonyms && currentCard.synonyms.length > 0 && (
+                <button
+                  onClick={(event) => { event.stopPropagation(); setShowSynonyms((visible) => !visible); }}
+                  style={styles.detailButton}
+                >
+                  <List size={15} /> {showSynonyms ? 'Ukryj synonimy' : 'Zobacz synonimy'}
+                </button>
+              )}
+            </div>
+
+            {showDefinition && currentCard.definition && (
               <div style={styles.infoBox}>
-                <strong>Definicja:</strong> {currentCard.definition}
+                <strong>Opis:</strong> {currentCard.definition}
               </div>
             )}
 
-            {currentCard.synonyms && currentCard.synonyms.length > 0 && (
+            {showSynonyms && currentCard.synonyms && currentCard.synonyms.length > 0 && (
               <div style={styles.infoBox}>
                 <strong>Synonimy:</strong> {currentCard.synonyms.join(', ')}
               </div>
@@ -156,6 +182,8 @@ const styles: Record<string, React.CSSProperties> = {
   badgeBack: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: theme.colors.primarySoft, color: theme.colors.primaryDark, padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
   wordBack: { fontSize: '38px', color: theme.colors.primary, margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
   infoBox: { fontSize: '14px', color: theme.colors.textLabel, backgroundColor: theme.colors.pageBackground, padding: '10px 16px', borderRadius: '10px', width: '100%', maxWidth: '500px', textAlign: 'left', border: `1px solid ${theme.colors.surfaceMuted}` },
+  detailsActions: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' },
+  detailButton: { display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', border: `1px solid ${theme.colors.border}`, borderRadius: '8px', backgroundColor: theme.colors.primarySoft, color: theme.colors.primaryDark, cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
   flipHintContainer: { display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2rem' },
   flipHint: { fontSize: '13px', color: theme.colors.textSubtle, fontWeight: 500 },
   controlsBar: { 

@@ -5,7 +5,7 @@ import type { Category, Flashcard } from '../types';
 import { Navbar } from '../components/Navbar';
 import { CategorySidebar } from '../components/CategorySidebar';
 import { FlashcardViewer } from '../components/FlashcardViewer';
-import { Layers, Play, Plus, X, BookOpen } from 'lucide-react';
+import { Layers, Play, Plus, X, BookOpen, Sparkles, LoaderCircle } from 'lucide-react';
 
 interface DashboardScreenProps {
   onLogout: () => void;
@@ -23,6 +23,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
   const [newFront, setNewFront] = useState('');
   const [newBack, setNewBack] = useState('');
   const [editingCategoryId, setEditingCategoryId] = useState('');
+  const [editingDefinition, setEditingDefinition] = useState('');
+  const [editingSynonyms, setEditingSynonyms] = useState<string[]>([]);
+  const [generatingField, setGeneratingField] = useState<'definition' | 'synonyms' | null>(null);
+  const [aiError, setAiError] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -97,6 +101,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
         await api.patch(`/flashcards/${editingFlashcardId}`, {
           word: newFront,
           translation: newBack,
+          definition: editingDefinition.trim() || undefined,
+          synonyms: editingSynonyms.filter((synonym) => synonym.trim()),
           categoryId: editingCategoryId || null,
         });
       } else {
@@ -111,12 +117,67 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
       setNewFront('');
       setNewBack('');
       setEditingCategoryId('');
+      setEditingDefinition('');
+      setEditingSynonyms([]);
+      setAiError('');
       setIsAddingFlashcard(false);
       setEditingFlashcardId(null);
       fetchFlashcards(selectedCategoryId);
     } catch (err: any) {
       console.error('Szczegóły błędu:', err.response?.data);
       alert(editingFlashcardId ? 'Nie udało się edytować fiszki' : 'Nie udało się dodać fiszki');
+    }
+  };
+
+  const generateFlashcardField = async (field: 'definition' | 'synonyms') => {
+    if (!editingFlashcardId || !newFront.trim()) return;
+    setGeneratingField(field);
+    setAiError('');
+    try {
+      const response = await fetch('http://6.tcp.eu.ngrok.io:10686/api/v1/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'speakleash_bielik-11b-v3.0-instruct',
+          system_prompt: field === 'definition'
+            ? 'Napisz krótką, jasną definicję podanego angielskiego słowa po angielsku. Zwróć wyłącznie samą definicję, bez nagłówka i dodatkowych komentarzy.'
+            : 'Znajdź dokładnie 3 prawdziwe angielskie synonimy tego słowa. Jeśli nie potrafisz znaleźć trzech dobrych synonimów, zwróć wyłącznie pustą tablicę []. W przeciwnym razie zwróć wyłącznie poprawną tablicę JSON zawierającą dokładnie trzy stringi, np. ["quick","fast","rapid"]. Nie przepraszaj, nie wyjaśniaj, nie dodawaj markdown ani żadnego innego tekstu.',
+          input: `Słowo: "${newFront}". Tłumaczenie: "${newBack}".`,
+        }),
+      });
+      if (!response.ok) throw new Error('Błąd serwera AI');
+      const data = await response.json();
+      const output = data.output?.[0]?.content?.trim();
+      if (!output) throw new Error('AI nie zwróciło odpowiedzi');
+
+      if (field === 'definition') {
+        setEditingDefinition(output);
+      } else {
+        const cleanedOutput = output.replace(/```json|```/gi, '').trim();
+        const jsonArray = cleanedOutput.match(/\[[\s\S]*\]/)?.[0];
+        let parsed: unknown;
+
+        try {
+          parsed = JSON.parse(jsonArray ?? cleanedOutput);
+        } catch {
+          throw new Error('AI nie zwróciło poprawnej tablicy synonimów');
+        }
+
+        if (!Array.isArray(parsed) || !parsed.every((synonym): synonym is string => typeof synonym === 'string')) {
+          throw new Error('Nieprawidłowa lista synonimów');
+        }
+        const synonyms = parsed.map((synonym) => synonym.trim()).filter(Boolean);
+        const normalizedWord = newFront.trim().toLocaleLowerCase();
+        const uniqueSynonyms = [...new Set(synonyms.map((synonym) => synonym.toLocaleLowerCase()))];
+        if (synonyms.length !== 3 || uniqueSynonyms.length !== 3 || uniqueSynonyms.includes(normalizedWord)) {
+          throw new Error('AI nie znalazło trzech poprawnych synonimów');
+        }
+        setEditingSynonyms(synonyms);
+      }
+    } catch {
+      setAiError(field === 'definition' ? 'Nie udało się wygenerować opisu.' : 'AI nie znalazło trzech poprawnych synonimów. Lista nie została zmieniona.');
+    } finally {
+      setGeneratingField(null);
     }
   };
 
@@ -193,6 +254,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
                   setNewFront(flashcard.word || (flashcard as any).front || '');
                   setNewBack(flashcard.translation || (flashcard as any).back || '');
                   setEditingCategoryId(flashcard.categoryId ?? '');
+                  setEditingDefinition(flashcard.definition ?? '');
+                  setEditingSynonyms(flashcard.synonyms ?? []);
+                  setAiError('');
                   setIsAddingFlashcard(true);
                 }}
               />
@@ -209,7 +273,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
                 <BookOpen size={20} color={theme.colors.primary} />
                 <h3 style={styles.modalTitle}>{editingFlashcardId ? 'Edytuj fiszkę' : 'Dodaj nową fiszkę'}</h3>
               </div>
-              <button onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); }} style={styles.btnClose}>
+              <button onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); setEditingDefinition(''); setEditingSynonyms([]); setAiError(''); }} style={styles.btnClose}>
                 <X size={20} />
               </button>
             </div>
@@ -235,6 +299,59 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
                 />
               </div>
               {editingFlashcardId && (
+                <>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Opis</label>
+                    <textarea
+                      value={editingDefinition}
+                      onChange={e => setEditingDefinition(e.target.value)}
+                      placeholder="Opis fiszki..."
+                      style={{ ...styles.input, minHeight: '70px', resize: 'vertical' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => generateFlashcardField('definition')}
+                      disabled={!!generatingField}
+                      style={styles.aiSmallButton}
+                    >
+                      {generatingField === 'definition' ? <LoaderCircle size={14} style={styles.spinner} /> : <Sparkles size={14} />}
+                      {generatingField === 'definition' ? 'Generuję opis...' : 'Generuj opis AI'}
+                    </button>
+                  </div>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Synonimy</label>
+                    <div style={styles.synonymsList}>
+                      {editingSynonyms.map((synonym, index) => (
+                        <div key={`${index}-${synonym}`} style={styles.synonymRow}>
+                          <input
+                            value={synonym}
+                            onChange={e => setEditingSynonyms((current) => current.map((item, itemIndex) => itemIndex === index ? e.target.value : item))}
+                            placeholder="np. quick"
+                            style={styles.input}
+                          />
+                          <button type="button" onClick={() => setEditingSynonyms((current) => current.filter((_, itemIndex) => itemIndex !== index))} style={styles.removeSynonymButton} aria-label="Usuń synonim">
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <button type="button" onClick={() => setEditingSynonyms((current) => [...current, ''])} style={styles.addSynonymButton}>
+                        <Plus size={14} /> Dodaj synonim
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => generateFlashcardField('synonyms')}
+                      disabled={!!generatingField}
+                      style={styles.aiSmallButton}
+                    >
+                      {generatingField === 'synonyms' ? <LoaderCircle size={14} style={styles.spinner} /> : <Sparkles size={14} />}
+                      {generatingField === 'synonyms' ? 'Generuję synonimy...' : 'Generuj synonimy AI'}
+                    </button>
+                  </div>
+                  {aiError && <p style={styles.aiError}>{aiError}</p>}
+                </>
+              )}
+              {editingFlashcardId && (
                 <div style={styles.inputGroup}>
                   <label style={styles.label}>Kategoria</label>
                   <select
@@ -250,7 +367,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
                 </div>
               )}
               <div style={styles.modalFooter}>
-                <button type="button" onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); }} style={styles.btnCancel}>Anuluj</button>
+                  <button type="button" onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); setEditingDefinition(''); setEditingSynonyms([]); setAiError(''); }} style={styles.btnCancel}>Anuluj</button>
                 <button type="submit" disabled={!newFront || !newBack} style={styles.btnSave}>{editingFlashcardId ? 'Zapisz zmiany' : 'Zapisz fiszkę'}</button>
               </div>
             </form>
@@ -282,8 +399,8 @@ const styles: Record<string, React.CSSProperties> = {
   emptyTitle: { fontSize: '20px', fontWeight: 700, color: theme.colors.textLabel, margin: '0 0 12px 0' },
   emptyDesc: { fontSize: '15px', color: theme.colors.textMuted, maxWidth: '450px', lineHeight: '1.6', margin: 0 },
 
-  modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modalContent: { width: '100%', maxWidth: '450px', backgroundColor: theme.colors.white, borderRadius: '20px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' },
+  modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem', overflowY: 'auto' },
+  modalContent: { width: '100%', maxWidth: '450px', maxHeight: 'calc(100vh - 2rem)', overflowY: 'auto', backgroundColor: theme.colors.white, borderRadius: '20px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
   modalTitleBox: { display: 'flex', alignItems: 'center', gap: '10px' },
   modalTitle: { margin: 0, fontSize: '18px', fontWeight: 700, color: theme.colors.text },
@@ -294,5 +411,12 @@ const styles: Record<string, React.CSSProperties> = {
   input: { padding: '12px 16px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '15px', color: theme.colors.text, backgroundColor: theme.colors.white, outline: 'none' }, 
   modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '1rem' },
   btnCancel: { padding: '10px 16px', background: 'transparent', border: 'none', color: theme.colors.textMuted, fontWeight: 600, cursor: 'pointer' },
-  btnSave: { padding: '10px 20px', background: theme.colors.primary, border: 'none', borderRadius: '10px', color: theme.colors.white, fontWeight: '600', cursor: 'pointer' }
+  btnSave: { padding: '10px 20px', background: theme.colors.primary, border: 'none', borderRadius: '10px', color: theme.colors.white, fontWeight: '600', cursor: 'pointer' },
+  aiSmallButton: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', background: theme.colors.primarySoft, border: `1px solid ${theme.colors.border}`, borderRadius: '8px', color: theme.colors.primaryDark, fontWeight: 600, fontSize: '12px', cursor: 'pointer' },
+  synonymsList: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  synonymRow: { display: 'flex', alignItems: 'center', gap: '6px' },
+  removeSynonymButton: { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', border: `1px solid ${theme.colors.border}`, borderRadius: '8px', backgroundColor: theme.colors.white, color: theme.colors.danger, cursor: 'pointer' },
+  addSynonymButton: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '7px', border: `1px dashed ${theme.colors.borderStrong}`, borderRadius: '8px', backgroundColor: 'transparent', color: theme.colors.primaryDark, cursor: 'pointer', fontSize: '12px', fontWeight: 600 },
+  aiError: { color: theme.colors.danger, fontSize: '12px', margin: 0 },
+  spinner: { animation: 'spin 0.8s linear infinite' }
 };

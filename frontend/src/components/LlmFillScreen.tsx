@@ -53,7 +53,7 @@ export const LlmFillScreen: React.FC<LlmFillScreenProps> = ({ flashcards, onBack
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "bielik-minitron-7b-v3.0-instruct",
+          model: "speakleash_bielik-11b-v3.0-instruct",
           system_prompt: "Act as an English teacher. Evaluate if the user's word correctly fills the blank in the sentence. Answer exactly with one short sentence.",
           input: `Sentence with blank: '${sentence}'. User filled the blank with: '${userAnswer}'. Target word was: '${selectedWord.word}'. Is the user's answer grammatically correct and makes sense? Explain briefly in Polish. have in mind that sentences must be clear and well structured.`
         })
