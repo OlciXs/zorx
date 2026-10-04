@@ -270,6 +270,68 @@
       background-color: #94a3b8;
       cursor: not-allowed;
     }
+
+    /* Flipify light magenta theme */
+    :root {
+      --primary: #d10078;
+      --primary-light: #f02b9f;
+      --primary-dark: #9a0058;
+      --primary-soft: #ffe0f1;
+      --page: #fff7fc;
+      --surface: #ffffff;
+      --surface-muted: #fff0f8;
+      --text: #24101d;
+      --text-body: #70445e;
+      --text-muted: #8d5a78;
+      --border: #f0c9df;
+      --border-strong: #df9fc3;
+      --success: #159669;
+      --success-soft: #e0f8ed;
+      --danger: #dc315e;
+      --danger-soft: #fff0f3;
+    }
+
+    body { background: var(--page); color: var(--text); }
+    #authSection { background: var(--surface-muted); border-color: var(--border); border-radius: 14px; padding: 12px; }
+    #authSection h4 { color: var(--text); }
+    #authSection input, .modal-content input {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    #authSection input:focus, .modal-content input:focus, #word-saver-input:focus {
+      outline: 2px solid var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .btn-login, .sync-all-btn { background: var(--primary); }
+    .btn-login:hover, .sync-all-btn:hover { background: var(--primary-dark); }
+    .btn-logout { background: var(--primary-soft); color: var(--primary-dark); }
+    .btn-logout:hover { background: #ffc7e2; }
+    #authStatus { padding: 7px 9px; }
+    .status-ok, .sync-indicator { background: var(--success-soft); color: var(--success); }
+    .status-error, .sync-indicator.disconnected { background: var(--danger-soft); color: var(--danger); }
+    .status-info { background: var(--primary-soft); color: var(--primary-dark); }
+    #loggedInInfo, .word-translation { color: var(--text-body); }
+    #loggedInInfo .user-email, .word-original { color: var(--text); }
+    .sync-all-btn:disabled { background: var(--border-strong); }
+    ul { background: var(--surface); border-color: var(--border); border-radius: 12px; }
+    li { border-bottom-color: var(--border); }
+    .word-translation { color: var(--text-muted); }
+    .word-synced { color: var(--success); }
+    .word-not-synced { color: var(--danger); }
+    .action-btn { background: var(--surface-muted); border-color: var(--border); color: var(--primary-dark); border-radius: 7px; }
+    .action-btn:hover { background: var(--primary-soft); }
+    .clear-btn { background: var(--danger); border-radius: 8px; }
+    .clear-btn:hover { background: #b5224a; }
+    .empty { color: var(--text-muted); }
+    #editModal { background: rgba(74, 13, 49, 0.35); backdrop-filter: blur(3px); }
+    .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 20px 50px rgba(154, 0, 88, 0.2); }
+    .modal-content h4 { color: var(--text); }
+    .modal-label { color: var(--text-body); }
+    .btn-cancel { background: var(--surface-muted); color: var(--text-body); }
+    .btn-save { background: var(--primary); color: var(--surface); }
   </style>
 </head>
 <body>
