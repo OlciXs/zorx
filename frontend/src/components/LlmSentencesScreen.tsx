@@ -16,7 +16,7 @@ export const LlmSentencesScreen: React.FC<LlmSentencesScreenProps> = ({ flashcar
   ]);
   const [error, setError] = useState<string | null>(null);
 
-  const handleGenerate = async () => {
+const handleGenerate = async () => {
     setLoading(true);
     setError(null);
 
@@ -28,8 +28,8 @@ export const LlmSentencesScreen: React.FC<LlmSentencesScreenProps> = ({ flashcar
         },
         body: JSON.stringify({
           model: "bielik-minitron-7b-v3.0-instruct",
-          system_prompt: "Answer with 2 distinct English sentences demonstrating the word, separated by a newline. Don't add any useless words or numbering.",
-          input: `Create sentences that show the use of the word '${selectedWord.word}'`
+          system_prompt: "Answer with 3 distinct English sentences demonstrating the word, each on a new line. Each sentence must not be longer than 10 words. Don't add any conversational filler, only the sentences.",
+          input: `Create 3 different creative but simple sentences that show the use of the word '${selectedWord.word}'.`
         })
       });
 
@@ -38,23 +38,25 @@ export const LlmSentencesScreen: React.FC<LlmSentencesScreenProps> = ({ flashcar
       }
 
       const data = await response.json();
-
+      
+      // Wyciągamy treść z odpowiedzi
       const content = data.output?.[0]?.content || "";
-
+      
+      // Dzielimy odpowiedź po nowej linii i oczyszczamy z ewentualnych numerków (np. "1.", "-")
       const parsedSentences = content
         .split('\n')
-        .map((s: string) => s.trim())
-        .filter((s: string) => s.length > 0);
+        .map((s: string) => s.replace(/^\d+[\.\)]\s*/, '').trim()) // Usuwa numerację typu "1. " jeśli model ją doda
+        .filter((s: string) => s.length > 0);                     // Odrzuca puste linijki
 
       if (parsedSentences.length > 0) {
         setSentences(parsedSentences);
       } else {
-        setSentences([content]);
+        setSentences([content.trim()]);
       }
 
     } catch (err: any) {
       console.error("Błąd podczas generowania zdań:", err);
-      setError("Nie udało się połączyć z modelem AI. Sprawdź połączenie lub CORS.");
+      setError("Nie udało się połączyć z modelem AI. Sprawdź CORS na serwerze Python.");
     } finally {
       setLoading(false);
     }
