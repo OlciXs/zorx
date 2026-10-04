@@ -33,7 +33,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'bielik-minitron-7b-v3.0-instruct@q5_k_m',
+        model: 'speakleash_bielik-11b-v3.0-instruct',
         system_prompt: systemPrompt,
         input,
       }),
@@ -61,8 +61,9 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
     const matches: Array<{ cardId: string; categoryId: string }> = [];
 
     cards.forEach((card) => {
-      const searchableText = `${card.word || ''} ${card.translation || ''}`;
-      const normalizedCard = normalizeText(searchableText);
+      const searchableParts = [card.word, card.translation, card.definition, ...(card.synonyms ?? [])].filter(Boolean) as string[];
+      const normalizedCard = searchableParts.map((part) => normalizeText(part));
+      const cardTokens = Array.from(new Set(normalizedCard.flatMap((text) => text.split(' ').filter(Boolean))));
       let bestCategoryId = '';
       let bestScore = 0;
 
@@ -70,22 +71,24 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         const normalizedCategory = normalizeText(category.name);
         if (!normalizedCategory) return;
 
+        const categoryTokens = Array.from(new Set(normalizedCategory.split(' ').filter(Boolean)));
         let score = 0;
-        const categoryTokens = normalizedCategory.split(' ').filter(Boolean);
 
-        if (normalizedCard.includes(normalizedCategory)) score += 18;
-        if (normalizedCard.includes(category.name.toLowerCase())) score += 10;
+        if (normalizedCard.some((text) => text.includes(normalizedCategory))) score += 25;
+        if (normalizedCard.some((text) => text.includes(category.name.toLowerCase()))) score += 12;
 
         categoryTokens.forEach((token) => {
           if (!token) return;
-
-          if (normalizedCard.includes(token)) score += 8;
-          if (normalizedCard.split(' ').includes(token)) score += 4;
+          if (cardTokens.includes(token)) score += 10;
+          if (normalizedCard.some((text) => text.includes(token))) score += 6;
         });
 
-        const cardWords = normalizedCard.split(' ').filter(Boolean);
-        const overlap = categoryTokens.filter((token) => cardWords.includes(token));
-        score += overlap.length * 6;
+        const overlap = categoryTokens.filter((token) => cardTokens.includes(token));
+        score += overlap.length * 8;
+
+        const wordMatch = card.word ? normalizeText(card.word).includes(normalizedCategory) || normalizedCategory.includes(normalizeText(card.word)) : false;
+        const translationMatch = card.translation ? normalizeText(card.translation).includes(normalizedCategory) || normalizedCategory.includes(normalizeText(card.translation)) : false;
+        if (wordMatch || translationMatch) score += 18;
 
         if (score > bestScore) {
           bestScore = score;
@@ -93,7 +96,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         }
       });
 
-      if (bestCategoryId && bestScore >= 8) {
+      if (bestCategoryId && bestScore >= 12) {
         matches.push({ cardId: card.id, categoryId: bestCategoryId });
       }
     });
@@ -110,12 +113,33 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         setMessage('Brak fiszek bez kategorii.');
         return;
       }
+
+      const cardsForLlm = cards.map((card, index) => ({
+        index,
+        word: card.word || '',
+        translation: card.translation || '',
+      }));
+
       const result = await callLlm(
-        JSON.stringify(cards.map(({ id, word, translation }) => ({ id, word, translation }))),
-        'Pogrupuj fiszki w sensowne kategorie. Zwróć wyłącznie JSON tablicę obiektów {"name":"nazwa","cardIds":["id"]}. Nie pomijaj fiszek.',
+        JSON.stringify(cardsForLlm),
+        'Pogrupuj te słówka według znaczenia, nie według dokładnej nazwy. Wybieraj krótkie, sensowne nazwy kategorii, które mogą być podobne do tematów, ale nie muszą być identyczne. Przykłady: "Travel", "Food", "Work", "Health", "Learning", "Technology", "Daily life", "Money", "Emotions", "Nature". Zwróć wyłącznie JSON w formacie: [{"name":"Nazwa kategorii","items":[0,2,5]}]. Nie pomijaj żadnego elementu. Używaj wyłącznie indeksów z wejścia, nie UUID ani innych identyfikatorów. Nie dodawaj nic poza JSON.',
       );
-      const parsed = JSON.parse(result.replace(/```json|```/g, '').trim()) as Array<{ name: string; cardIds: string[] }>;
-      setSuggestions(parsed.filter((item) => item.name && item.cardIds?.length));
+
+      const parsed = JSON.parse(result.replace(/```json|```/g, '').trim()) as Array<{ name?: string; items?: number[] }>;
+      const normalizedSuggestions = parsed
+        .filter((item) => typeof item?.name === 'string')
+        .map((item) => {
+          const itemIndexes = Array.isArray(item.items) ? item.items : [];
+          return {
+            name: String(item.name).trim(),
+            cardIds: itemIndexes
+              .map((index) => cards[index]?.id)
+              .filter((id): id is string => Boolean(id)),
+          };
+        })
+        .filter((item) => item.name && item.cardIds.length);
+
+      setSuggestions(normalizedSuggestions);
     } catch {
       setMessage('Nie udało się wygenerować propozycji kategorii.');
     } finally {
@@ -129,7 +153,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
       const category = await api.post('/categories', { name: suggestion.name });
       await Promise.all(suggestion.cardIds.map((id) => api.patch(`/flashcards/${id}`, { categoryId: category.data.id })));
       setSuggestions((current) => current.filter((item) => item !== suggestion));
-      onRefresh();
+      await onRefresh();
     } catch {
       setMessage('Nie udało się zaakceptować propozycji.');
     } finally {
@@ -155,24 +179,49 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
       if (localMatches.length > 0) {
         await Promise.all(localMatches.map((match) => api.patch(`/flashcards/${match.cardId}`, { categoryId: match.categoryId })));
         setMessage(`Dopasowano ${localMatches.length} fiszek.`);
-        onRefresh();
+        await onRefresh();
         return;
       }
 
+      const cardsForLlm = cards.map((card, index) => ({
+        index,
+        word: card.word || '',
+        translation: card.translation || '',
+      }));
+
       const result = await callLlm(
-        JSON.stringify({ categories: categories.map(({ id, name }) => ({ id, name })), cards: cards.map(({ id, word, translation }) => ({ id, word, translation })) }),
-        'Dopasuj każdą fiszkę do jednej z istniejących kategorii. Zwróć wyłącznie JSON tablicę obiektów {"cardId":"id","categoryId":"id"}. Pomijaj tylko całkowicie niedopasowane fiszki.',
+        JSON.stringify({
+          categories: categories.map(({ name }) => ({ name })),
+          cards: cardsForLlm,
+        }),
+        'Dopasuj każdą fiszkę do jednej z istniejących kategorii po znaczeniu, niekoniecznie po dokładnej nazwie. Jeśli słówko odpowiada tematowi kategorii, nawet gdy nazwa jest podobna, a nie identyczna, przypisz je. Zwróć wyłącznie JSON w formacie: [{"index":0,"category":"Nazwa kategorii"}]. Używaj tylko nazw kategorii z listy, nie UUID ani innych identyfikatorów. Pomijaj tylko całkowicie niedopasowane fiszki. Nie dodawaj nic poza JSON.',
       );
       const raw = result.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(raw) as Array<{ cardId: string; categoryId: string }>;
+      const parsed = JSON.parse(raw) as Array<{ index?: number; category?: string }>;
       const matches = Array.isArray(parsed) ? parsed : [];
 
-      if (matches.length > 0) {
-        await Promise.all(matches.map((match) => api.patch(`/flashcards/${match.cardId}`, { categoryId: match.categoryId })));
+      const categoryByName = new Map(categories.map((category) => [normalizeText(category.name), category.id]));
+      const mappedMatches = matches
+        .map((match) => {
+          if (typeof match?.index !== 'number' || typeof match?.category !== 'string') {
+            return null;
+          }
+
+          const index = Number(match.index);
+          const cardId = cards[index]?.id;
+          const categoryName = match.category.trim();
+          const categoryId = categoryName ? categoryByName.get(normalizeText(categoryName)) : undefined;
+
+          return cardId && categoryId ? { cardId, categoryId } : null;
+        })
+        .filter((match): match is { cardId: string; categoryId: string } => Boolean(match));
+
+      if (mappedMatches.length > 0) {
+        await Promise.all(mappedMatches.map((match) => api.patch(`/flashcards/${match.cardId}`, { categoryId: match.categoryId })));
       }
 
-      setMessage(matches.length ? `Dopasowano ${matches.length} fiszek.` : 'Brak oczywistych dopasowań do kategorii.');
-      onRefresh();
+      setMessage(mappedMatches.length ? `Dopasowano ${mappedMatches.length} fiszek.` : 'Brak oczywistych dopasowań do kategorii.');
+      await onRefresh();        
     } catch {
       setMessage('Nie udało się dopasować fiszek.');
     } finally {

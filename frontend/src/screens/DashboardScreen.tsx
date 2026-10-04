@@ -199,9 +199,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
             onSelectCategory={setSelectedCategoryId}
             onCreateCategory={handleCreateCategory}
             onDeleteCategory={handleDeleteCategory}
-            onRefresh={() => {
-              fetchCategories();
-              fetchFlashcards(selectedCategoryId);
+            onRefresh={async () => {
+              await Promise.all([
+                fetchCategories(),
+                fetchFlashcards(selectedCategoryId),
+              ]);
             }}
           />
         </div>
