@@ -1,6 +1,6 @@
 import { theme } from '../themes';
 import React, { useState } from 'react';
-import { Layers, Plus, Trash2, Sparkles, WandSparkles, Merge } from 'lucide-react';
+import { Layers, Plus, Trash2, Sparkles, WandSparkles, Merge, LoaderCircle } from 'lucide-react';
 import type { Category, Flashcard } from '../types';
 import { api } from '../api';
 
@@ -203,10 +203,12 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
 
       <div style={styles.tools}>
         <button onClick={suggestCategories} style={styles.toolButton} disabled={!!loadingAction}>
-          <Sparkles size={15} /> Zaproponuj kategorie AI
+          {loadingAction === 'suggest' ? <LoaderCircle size={15} style={styles.spinner} /> : <Sparkles size={15} />}
+          {loadingAction === 'suggest' ? 'Analizuję fiszki...' : 'Zaproponuj kategorie AI'}
         </button>
         <button onClick={matchExistingCategories} style={styles.toolButton} disabled={!!loadingAction}>
-          <WandSparkles size={15} /> Dopasuj do kategorii
+          {loadingAction === 'match' ? <LoaderCircle size={15} style={styles.spinner} /> : <WandSparkles size={15} />}
+          {loadingAction === 'match' ? 'Dopasowuję fiszki...' : 'Dopasuj do kategorii'}
         </button>
         <div style={styles.mergeBox}>
           <strong style={styles.toolTitle}><Merge size={15} /> Połącz kategorie</strong>
@@ -217,7 +219,10 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
             </label>
           ))}
           <input value={mergeName} onChange={(event) => setMergeName(event.target.value)} placeholder="Nowa nazwa..." style={styles.catInput} />
-          <button onClick={mergeCategories} style={styles.toolButton} disabled={!!loadingAction || selectedCategoryIds.length < 2 || !mergeName.trim()}>Połącz wybrane</button>
+          <button onClick={mergeCategories} style={styles.toolButton} disabled={!!loadingAction || selectedCategoryIds.length < 2 || !mergeName.trim()}>
+            {loadingAction === 'merge' && <LoaderCircle size={15} style={styles.spinner} />}
+            {loadingAction === 'merge' ? 'Łączę kategorie...' : 'Połącz wybrane'}
+          </button>
         </div>
       </div>
 
@@ -227,7 +232,10 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
           {suggestions.map((suggestion) => (
             <div key={suggestion.name} style={styles.suggestion}>
               <span>{suggestion.name} ({suggestion.cardIds.length})</span>
-              <button onClick={() => acceptSuggestion(suggestion)} style={styles.acceptButton} disabled={!!loadingAction}>Akceptuj</button>
+              <button onClick={() => acceptSuggestion(suggestion)} style={styles.acceptButton} disabled={!!loadingAction}>
+                {loadingAction === `accept-${suggestion.name}` && <LoaderCircle size={12} style={styles.spinner} />}
+                {loadingAction === `accept-${suggestion.name}` ? 'Zapisuję...' : 'Akceptuj'}
+              </button>
             </div>
           ))}
         </div>
@@ -268,4 +276,5 @@ const styles: Record<string, React.CSSProperties> = {
   suggestion: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px', color: theme.colors.textBody, fontSize: '12px' },
   acceptButton: { padding: '5px 7px', border: 'none', borderRadius: '6px', backgroundColor: theme.colors.primary, color: theme.colors.white, cursor: 'pointer', fontSize: '11px', fontWeight: 600 },
   message: { margin: '9px 0 0', color: theme.colors.textMuted, fontSize: '11px', lineHeight: 1.4 },
+  spinner: { animation: 'spin 0.8s linear infinite' },
 };
