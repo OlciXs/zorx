@@ -1,4 +1,4 @@
-# Zorx
+# Flipify
 
 Polski asystent do nauki słówek zintegrowany z przeglądarką i web app. Projekt łączy wtyczkę do zapisywania słów z aplikacją do nauki fiszek, dzięki czemu użytkownik może zbierać nowe wyrazy podczas czytania, a następnie powtarzać je w uporządkowany sposób.
 
@@ -169,6 +169,7 @@ Backend udostępnia API do:
 
 Pełna dokumentacja jest dostępna w Swaggerze po uruchomieniu backendu.
 
+<<<<<<< HEAD
 ## Licencja
 
 Projekt jest udostępniany na licencji określonej w repozytorium. Jeśli chcesz, możesz dodać własną licencję, np. MIT, w osobnym pliku `LICENSE`.
@@ -375,3 +376,5 @@ This is an MVP / demo version with core vocabulary-learning features. It can be 
 ---
 
 If you want, I can also prepare a more premium startup-style README or a fully English-only version.
+=======
+>>>>>>> 4ee0c9a9c5fc8a4fa61d92cb306b1b3d28278ac7
