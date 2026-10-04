@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState } from 'react';
 import { ArrowLeft, Bot, Sparkles } from 'lucide-react';
 import type { Flashcard } from '../types';
@@ -70,7 +71,7 @@ const handleGenerate = async () => {
 
       <div style={styles.cardBox}>
         <div style={styles.headerFlex}>
-          <Bot size={32} color="#9333ea" />
+          <Bot size={32} color={theme.colors.purpleAccent} />
           <h2 style={styles.title}>Kontekstowe zdania z AI</h2>
         </div>
         <p style={styles.subtitle}>Wybierz słówko i zobacz, jak sztuczna inteligencja używa go w zdaniach.</p>
@@ -101,8 +102,8 @@ const handleGenerate = async () => {
           <h4 style={styles.sentTitle}>Przykładowe zdania:</h4>
           {sentences.map((sent, idx) => (
             <div key={idx} style={styles.sentenceItem}>
-              <span style={{ color: '#0f172a' }}>{idx + 1}.</span>
-              <strong style={{ color: '#0f172a' }}>{sent}</strong>
+              <span style={{ color: theme.colors.text }}>{idx + 1}.</span>
+              <strong style={{ color: theme.colors.text }}>{sent}</strong>
             </div>
           ))}
         </div>
@@ -112,18 +113,18 @@ const handleGenerate = async () => {
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  container: { maxWidth: '800px', margin: '3rem auto', padding: '0 2rem', display: 'flex', flexDirection: 'column', gap: '2rem', fontFamily: 'system-ui, sans-serif' },
-  backButton: { display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#64748b', fontSize: '14px', fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start', padding: 0 },
-  cardBox: { backgroundColor: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', padding: '3rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', display: 'flex', flexDirection: 'column', gap: '1.5rem' },
+  container: { minHeight: '100vh', maxWidth: '800px', margin: '0 auto', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', gap: '2rem', fontFamily: 'system-ui, sans-serif', backgroundColor: theme.colors.pageBackground },
+  backButton: { display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: theme.colors.textMuted, fontSize: '14px', fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start', padding: 0 },
+  cardBox: { backgroundColor: theme.colors.white, borderRadius: '24px', border: `1px solid ${theme.colors.border}`, padding: '3rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', display: 'flex', flexDirection: 'column', gap: '1.5rem' },
   headerFlex: { display: 'flex', alignItems: 'center', gap: '12px' },
-  title: { fontSize: '24px', fontWeight: 700, color: '#0f172a', margin: 0 },
-  subtitle: { fontSize: '14px', color: '#64748b', margin: 0 },
+  title: { fontSize: '24px', fontWeight: 700, color: theme.colors.text, margin: 0 },
+  subtitle: { fontSize: '14px', color: theme.colors.textMuted, margin: 0 },
   selectorGroup: { display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '1rem' },
-  label: { fontSize: '13px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' },
-  select: { padding: '12px 16px', borderRadius: '10px', border: '2px solid #e2e8f0', fontSize: '15px', backgroundColor: '#fff', color: '#0f172a', outline: 'none' },
-  aiButton: { padding: '14px', backgroundColor: '#9333ea', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '15px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' },
-  sentencesBox: { display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: '16px' },
-  sentTitle: { margin: '0 0 6px 0', fontSize: '14px', color: '#334155' },
-  sentenceItem: { fontSize: '15px', color: '#0f172a', display: 'flex', gap: '8px' },
-  errorText: { color: '#ef4444', fontSize: '14px', margin: 0 }
+  label: { fontSize: '13px', fontWeight: 600, color: theme.colors.textBody, textTransform: 'uppercase' },
+  select: { padding: '12px 16px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '15px', backgroundColor: theme.colors.white, color: theme.colors.text, outline: 'none' },
+  aiButton: { padding: '14px', backgroundColor: theme.colors.purpleAccent, color: theme.colors.white, border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '15px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' },
+  sentencesBox: { display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '1rem', backgroundColor: theme.colors.pageBackground, padding: '1.5rem', borderRadius: '16px' },
+  sentTitle: { margin: '0 0 6px 0', fontSize: '14px', color: theme.colors.textLabel },
+  sentenceItem: { fontSize: '15px', color: theme.colors.text, display: 'flex', gap: '8px' },
+  errorText: { color: theme.colors.danger, fontSize: '14px', margin: 0 }
 };

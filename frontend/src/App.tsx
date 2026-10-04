@@ -1,15 +1,19 @@
 import { useState } from 'react';
+import { theme } from './themes';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { Exercises } from './components/Exercises';
 import { TestScreen } from './components/TestScreen';
 import { LlmSentencesScreen } from './components/LlmSentencesScreen';
+import { LlmFillScreen } from './components/LlmFillScreen';
+import { LlmWriteScreen } from './components/LlmWriteScreen';
+import { LlmImpostorScreen } from './components/LlmImpostorScreen';
 import { FlashcardViewer } from './components/FlashcardViewer';
 import { api } from './api';
 import type { Flashcard, Category } from './types';
 import { BookOpen, X } from 'lucide-react';
 
-type AppView = 'dashboard' | 'exercises-hub' | 'test' | 'interactive' | 'llm';
+type AppView = 'dashboard' | 'exercises-hub' | 'test' | 'interactive' | 'llm' | 'llm-fill' | 'llm-write' | 'llm-impostor';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -77,7 +81,11 @@ export default function App() {
   };
 
   if (!token) {
-    return <WelcomeScreen onLoginSuccess={(newToken) => setToken(newToken)} />;
+    return (
+      <WelcomeScreen
+        onLoginSuccess={(newToken) => setToken(newToken)}
+      />
+    );
   }
 
   if (currentView === 'exercises-hub') {
@@ -90,6 +98,9 @@ export default function App() {
           if (mode === 'test' || mode === 'write') setCurrentView('test');
           else if (mode === 'interactive' || mode === 'flashcards') setCurrentView('interactive');
           else if (mode === 'llm' || mode === 'ai') setCurrentView('llm');
+          else if (mode === 'llm-fill') setCurrentView('llm-fill');
+          else if (mode === 'llm-write') setCurrentView('llm-write');
+          else if (mode === 'llm-impostor') setCurrentView('llm-impostor');
         }}
       />
     );
@@ -109,11 +120,11 @@ export default function App() {
       <div style={{ maxWidth: '800px', margin: '3rem auto', padding: '0 2rem', position: 'relative' }}>
         <button 
           onClick={() => setCurrentView('exercises-hub')} 
-          style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: 600, cursor: 'pointer', marginBottom: '1.5rem' }}
+          style={{ background: 'none', border: 'none', color: theme.colors.textMuted, fontWeight: 600, cursor: 'pointer', marginBottom: '1.5rem' }}
         >
           ← Wróć do menu trybów
         </button>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#0f172a', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 700, color: theme.colors.text, marginBottom: '1.5rem' }}>
           Tryb interaktywny ({exerciseCategoryName})
         </h2>
         
@@ -141,7 +152,7 @@ export default function App() {
             <div style={styles.modalContent}>
               <div style={styles.modalHeader}>
                 <div style={styles.modalTitleBox}>
-                  <BookOpen size={20} color="#4f46e5" />
+                  <BookOpen size={20} color={theme.colors.primary} />
                   <h3 style={styles.modalTitle}>Edytuj fiszkę</h3>
                 </div>
                 <button onClick={() => setIsEditingModalOpen(false)} style={styles.btnClose}>
@@ -188,6 +199,33 @@ export default function App() {
     );
   }
 
+  if (currentView === 'llm-fill') {
+    return (
+      <LlmFillScreen
+        flashcards={exerciseFlashcards}
+        onBack={() => setCurrentView('exercises-hub')}
+      />
+    );
+  }
+
+  if (currentView === 'llm-write') {
+    return (
+      <LlmWriteScreen
+        flashcards={exerciseFlashcards}
+        onBack={() => setCurrentView('exercises-hub')}
+      />
+    );
+  }
+
+  if (currentView === 'llm-impostor') {
+    return (
+      <LlmImpostorScreen
+        flashcards={exerciseFlashcards}
+        onBack={() => setCurrentView('exercises-hub')}
+      />
+    );
+  }
+
   return (
     <DashboardScreen 
       onLogout={handleLogout} 
@@ -198,16 +236,16 @@ export default function App() {
 
 const styles: Record<string, React.CSSProperties> = {
   modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modalContent: { width: '100%', maxWidth: '450px', backgroundColor: '#ffffff', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' },
+  modalContent: { width: '100%', maxWidth: '450px', backgroundColor: theme.colors.white, borderRadius: '20px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
   modalTitleBox: { display: 'flex', alignItems: 'center', gap: '10px' },
-  modalTitle: { margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' },
-  btnClose: { background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' },
+  modalTitle: { margin: 0, fontSize: '18px', fontWeight: 700, color: theme.colors.text },
+  btnClose: { background: 'none', border: 'none', color: theme.colors.textSubtle, cursor: 'pointer', padding: '4px' },
   modalForm: { display: 'flex', flexDirection: 'column', gap: '1.25rem' },
   inputGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '13px', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' },
-  input: { padding: '12px 16px', borderRadius: '10px', border: '2px solid #e2e8f0', fontSize: '15px', color: '#0f172a', backgroundColor: '#ffffff', outline: 'none' }, 
+  label: { fontSize: '13px', fontWeight: 600, color: theme.colors.textBody, textTransform: 'uppercase', letterSpacing: '0.5px' },
+  input: { padding: '12px 16px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '15px', color: theme.colors.text, backgroundColor: theme.colors.white, outline: 'none' }, 
   modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '1rem' },
-  btnCancel: { padding: '10px 16px', background: 'transparent', border: 'none', color: '#64748b', fontWeight: 600, cursor: 'pointer' },
-  btnSave: { padding: '10px 20px', background: '#4f46e5', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: '600', cursor: 'pointer' }
+  btnCancel: { padding: '10px 16px', background: 'transparent', border: 'none', color: theme.colors.textMuted, fontWeight: '600', cursor: 'pointer' },
+  btnSave: { padding: '10px 20px', background: theme.colors.primary, border: 'none', borderRadius: '10px', color: theme.colors.white, fontWeight: '600', cursor: 'pointer' }
 };

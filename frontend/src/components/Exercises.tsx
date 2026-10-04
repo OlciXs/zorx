@@ -1,12 +1,13 @@
+import { theme } from '../themes';
 import React from 'react';
-import { PenTool, Layers, ArrowLeft, Bot } from 'lucide-react';
+import { PenTool, Layers, ArrowLeft, Bot, Edit3, MessageSquare, Target } from 'lucide-react';
 import type { Flashcard } from '../types';
 
 interface ExercisesHubProps {
   flashcards: Flashcard[];
   categoryName: string;
   onBack: () => void;
-  onSelectMode: (mode: 'test' | 'interactive' | 'llm') => void;
+  onSelectMode: (mode: 'test' | 'interactive' | 'llm' | 'llm-fill' | 'llm-write' | 'llm-impostor') => void;
 }
 
 export const Exercises: React.FC<ExercisesHubProps> = ({ 
@@ -29,8 +30,9 @@ export const Exercises: React.FC<ExercisesHubProps> = ({
       </div>
 
       <div style={styles.modesGrid}>
+        {/* Test pisemny */}
         <div style={styles.modeCard} onClick={() => onSelectMode('test')}>
-          <div style={{ ...styles.iconBox, backgroundColor: '#e0e7ff', color: '#4338ca' }}>
+          <div style={{ ...styles.iconBox, backgroundColor: theme.colors.primarySoft, color: theme.colors.primaryDark }}>
             <PenTool size={32} />
           </div>
           <h3 style={styles.modeTitle}>Test pisemny</h3>
@@ -40,26 +42,64 @@ export const Exercises: React.FC<ExercisesHubProps> = ({
           <button style={styles.modeButton}>Rozpocznij test</button>
         </div>
 
+        {/* Ćwiczenia interaktywne */}
         <div style={styles.modeCard} onClick={() => onSelectMode('interactive')}>
-          <div style={{ ...styles.iconBox, backgroundColor: '#ede9fe', color: '#6d28d9' }}>
+          <div style={{ ...styles.iconBox, backgroundColor: theme.colors.skySoft, color: theme.colors.skyDark }}>
             <Layers size={32} />
           </div>
           <h3 style={styles.modeTitle}>Ćwiczenia interaktywne</h3>
           <p style={styles.modeDesc}>
             Klasyczna sesja nauki z dużymi, obracanymi fiszkami we własnym tempie.
           </p>
-          <button style={styles.modeButton}>Rozpocznij naukę</button>
+          <button style={{ ...styles.modeButton, backgroundColor: theme.colors.sky }}>Rozpocznij naukę</button>
         </div>
 
+        {/* Zdania z AI */}
         <div style={styles.modeCard} onClick={() => onSelectMode('llm')}>
-          <div style={{ ...styles.iconBox, backgroundColor: '#fae8ff', color: '#a21caf' }}>
+          <div style={{ ...styles.iconBox, backgroundColor: theme.colors.purpleSoft, color: theme.colors.purple }}>
             <Bot size={32} />
           </div>
-          <h3 style={styles.modeTitle}>Zdania z AI (LLM)</h3>
+          <h3 style={styles.modeTitle}>Zdania z AI</h3>
           <p style={styles.modeDesc}>
             Ucz się słówek w kontekście! Sztuczna inteligencja wygeneruje dla Ciebie przykładowe zdania.
           </p>
-          <button style={{ ...styles.modeButton, backgroundColor: '#9333ea' }}>Generuj zdania</button>
+          <button style={{ ...styles.modeButton, backgroundColor: theme.colors.purple }}>Generuj zdania</button>
+        </div>
+
+        {/* Wstaw w lukę */}
+        <div style={styles.modeCard} onClick={() => onSelectMode('llm-fill')}>
+          <div style={{ ...styles.iconBox, backgroundColor: theme.colors.fuchsiaSoft, color: theme.colors.fuchsia }}>
+            <Edit3 size={32} />
+          </div>
+          <h3 style={styles.modeTitle}>Wstaw w lukę (AI)</h3>
+          <p style={styles.modeDesc}>
+            AI wygeneruje zdanie z luką. Wpisz uczone słówko w odpowiedniej formie, a model to sprawdzi.
+          </p>
+          <button style={{ ...styles.modeButton, backgroundColor: theme.colors.fuchsia }}>Uzupełnij luki</button>
+        </div>
+
+        {/* Napisz zdanie */}
+        <div style={styles.modeCard} onClick={() => onSelectMode('llm-write')}>
+          <div style={{ ...styles.iconBox, backgroundColor: theme.colors.pinkSoft, color: theme.colors.pink }}>
+            <MessageSquare size={32} />
+          </div>
+          <h3 style={styles.modeTitle}>Napisz zdanie (AI)</h3>
+          <p style={styles.modeDesc}>
+            Ułóż własne zdanie z wybranym słówkiem. AI sprawdzi gramatykę i wyjaśni ewentualne błędy.
+          </p>
+          <button style={{ ...styles.modeButton, backgroundColor: theme.colors.pink }}>Twórz zdania</button>
+        </div>
+
+        {/* Znajdź intruza */}
+        <div style={styles.modeCard} onClick={() => onSelectMode('llm-impostor')}>
+          <div style={{ ...styles.iconBox, backgroundColor: theme.colors.violetSoft, color: theme.colors.violet }}>
+            <Target size={32} />
+          </div>
+          <h3 style={styles.modeTitle}>Znajdź intruza (AI)</h3>
+          <p style={styles.modeDesc}>
+            AI wygeneruje synonimy słówka i intruza. Twoim zadaniem jest wytypowanie niepasującego wyrazu.
+          </p>
+          <button style={{ ...styles.modeButton, backgroundColor: theme.colors.violet }}>Graj z AI</button>
         </div>
       </div>
     </div>
@@ -67,15 +107,15 @@ export const Exercises: React.FC<ExercisesHubProps> = ({
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  container: { maxWidth: '1000px', margin: '3rem auto', padding: '0 2rem', display: 'flex', flexDirection: 'column', gap: '2rem', fontFamily: 'system-ui, sans-serif' },
-  backButton: { display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#64748b', fontSize: '14px', fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start', padding: 0 },
+  container: { minHeight: '100vh', maxWidth: '1000px', margin: '0 auto', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', gap: '2rem', fontFamily: 'system-ui, sans-serif', backgroundColor: theme.colors.pageBackground },
+  backButton: { display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: theme.colors.textMuted, fontSize: '14px', fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start', padding: 0 },
   headerBox: { textAlign: 'center', marginBottom: '1rem' },
-  title: { fontSize: '32px', fontWeight: 700, color: '#0f172a', margin: '0 0 8px 0' },
-  subtitle: { fontSize: '16px', color: '#64748b', margin: 0 },
+  title: { fontSize: '32px', fontWeight: 700, color: theme.colors.text, margin: '0 0 8px 0' },
+  subtitle: { fontSize: '16px', color: theme.colors.textMuted, margin: 0 },
   modesGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' },
-  modeCard: { backgroundColor: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.03)', transition: 'transform 0.2s' },
+  modeCard: { backgroundColor: theme.colors.white, borderRadius: '20px', border: `1px solid ${theme.colors.border}`, padding: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.03)', transition: 'transform 0.2s' },
   iconBox: { width: '72px', height: '72px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' },
-  modeTitle: { fontSize: '20px', fontWeight: 700, color: '#0f172a', margin: '0 0 10px 0' },
-  modeDesc: { fontSize: '14px', color: '#64748b', lineHeight: '1.6', margin: '0 0 2rem 0' },
-  modeButton: { width: '100%', padding: '12px', backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }
+  modeTitle: { fontSize: '20px', fontWeight: 700, color: theme.colors.text, margin: '0 0 10px 0' },
+  modeDesc: { fontSize: '14px', color: theme.colors.textMuted, lineHeight: '1.6', margin: '0 0 2rem 0' },
+  modeButton: { width: '100%', padding: '12px', backgroundColor: theme.colors.primary, color: theme.colors.white, border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }
 };

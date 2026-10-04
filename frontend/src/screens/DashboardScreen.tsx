@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 import type { Category, Flashcard } from '../types';
@@ -157,7 +158,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
 
           {flashcards.length === 0 ? (
             <div style={styles.emptyState}>
-              <div style={styles.emptyIcon}><Layers size={48} color="#94a3b8" /></div>
+              <div style={styles.emptyIcon}><Layers size={48} color={theme.colors.textSubtle} /></div>
               <h2 style={styles.emptyTitle}>Ta sekcja jest jeszcze pusta</h2>
               <p style={styles.emptyDesc}>
                 Dodaj pierwsze słówko klikając przycisk "Dodaj słówko" u góry, lub użyj naszej wtyczki Chrome, aby zapisywać pojęcia ze stron internetowych!
@@ -185,7 +186,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
           <div style={styles.modalContent}>
             <div style={styles.modalHeader}>
               <div style={styles.modalTitleBox}>
-                <BookOpen size={20} color="#4f46e5" />
+                <BookOpen size={20} color={theme.colors.primary} />
                 <h3 style={styles.modalTitle}>{editingFlashcardId ? 'Edytuj fiszkę' : 'Dodaj nową fiszkę'}</h3>
               </div>
               <button onClick={() => { setIsAddingFlashcard(false); setEditingFlashcardId(null); setNewFront(''); setNewBack(''); }} style={styles.btnClose}>
@@ -226,37 +227,37 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onLogout, onSt
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  appBg: { minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, sans-serif' },
+  appBg: { minHeight: '100vh', backgroundColor: theme.colors.pageBackground, fontFamily: 'system-ui, sans-serif' },
   mainLayout: { display: 'flex', maxWidth: '1500px', margin: '2rem auto', gap: '2.5rem', padding: '0 2.5rem' },
   sidebarWrapper: { width: '280px', flexShrink: 0 },
   contentArea: { flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 },
   
-  contentHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#ffffff', padding: '1.25rem 2rem', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' },
-  contentTitle: { fontSize: '24px', fontWeight: 700, color: '#0f172a', margin: '0 0 4px 0' },
-  contentSubtitle: { fontSize: '14px', color: '#64748b', margin: 0 },
+  contentHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.colors.white, padding: '1.25rem 2rem', borderRadius: '16px', border: `1px solid ${theme.colors.border}`, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' },
+  contentTitle: { fontSize: '24px', fontWeight: 700, color: theme.colors.text, margin: '0 0 4px 0' },
+  contentSubtitle: { fontSize: '14px', color: theme.colors.textMuted, margin: 0 },
   headerActions: { display: 'flex', gap: '12px' },
-  btnAdd: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: '#ffffff', border: '2px solid #e2e8f0', borderRadius: '10px', color: '#334155', fontWeight: 600, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s' },
-  btnPlay: { display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)', border: 'none', borderRadius: '10px', color: '#ffffff', fontWeight: 700, fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.2)', transition: 'transform 0.1s' },
+  btnAdd: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: theme.colors.white, border: `2px solid ${theme.colors.border}`, borderRadius: '10px', color: theme.colors.textLabel, fontWeight: 600, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s' },
+  btnPlay: { display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: theme.gradients.primary, border: 'none', borderRadius: '10px', color: theme.colors.white, fontWeight: 700, fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.2)', transition: 'transform 0.1s' },
   btnDisabled: { opacity: 0.5, cursor: 'not-allowed', boxShadow: 'none' },
 
   flashcardsContainer: { width: '100%' },
 
-  emptyState: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, backgroundColor: '#ffffff', borderRadius: '16px', padding: '5rem 2rem', textAlign: 'center', border: '1px dashed #cbd5e1' },
-  emptyIcon: { width: '96px', height: '96px', backgroundColor: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' },
-  emptyTitle: { fontSize: '20px', fontWeight: 700, color: '#334155', margin: '0 0 12px 0' },
-  emptyDesc: { fontSize: '15px', color: '#64748b', maxWidth: '450px', lineHeight: '1.6', margin: 0 },
+  emptyState: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, backgroundColor: theme.colors.white, borderRadius: '16px', padding: '5rem 2rem', textAlign: 'center', border: '1px dashed theme.colors.borderStrong' },
+  emptyIcon: { width: '96px', height: '96px', backgroundColor: theme.colors.surfaceMuted, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' },
+  emptyTitle: { fontSize: '20px', fontWeight: 700, color: theme.colors.textLabel, margin: '0 0 12px 0' },
+  emptyDesc: { fontSize: '15px', color: theme.colors.textMuted, maxWidth: '450px', lineHeight: '1.6', margin: 0 },
 
   modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modalContent: { width: '100%', maxWidth: '450px', backgroundColor: '#ffffff', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' },
+  modalContent: { width: '100%', maxWidth: '450px', backgroundColor: theme.colors.white, borderRadius: '20px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
   modalTitleBox: { display: 'flex', alignItems: 'center', gap: '10px' },
-  modalTitle: { margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' },
-  btnClose: { background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' },
+  modalTitle: { margin: 0, fontSize: '18px', fontWeight: 700, color: theme.colors.text },
+  btnClose: { background: 'none', border: 'none', color: theme.colors.textSubtle, cursor: 'pointer', padding: '4px' },
   modalForm: { display: 'flex', flexDirection: 'column', gap: '1.25rem' },
   inputGroup: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '13px', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' },
-  input: { padding: '12px 16px', borderRadius: '10px', border: '2px solid #e2e8f0', fontSize: '15px', color: '#0f172a', backgroundColor: '#ffffff', outline: 'none' }, 
+  label: { fontSize: '13px', fontWeight: 600, color: theme.colors.textBody, textTransform: 'uppercase', letterSpacing: '0.5px' },
+  input: { padding: '12px 16px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '15px', color: theme.colors.text, backgroundColor: theme.colors.white, outline: 'none' }, 
   modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '1rem' },
-  btnCancel: { padding: '10px 16px', background: 'transparent', border: 'none', color: '#64748b', fontWeight: 600, cursor: 'pointer' },
-  btnSave: { padding: '10px 20px', background: '#4f46e5', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: '600', cursor: 'pointer' }
+  btnCancel: { padding: '10px 16px', background: 'transparent', border: 'none', color: theme.colors.textMuted, fontWeight: 600, cursor: 'pointer' },
+  btnSave: { padding: '10px 20px', background: theme.colors.primary, border: 'none', borderRadius: '10px', color: theme.colors.white, fontWeight: '600', cursor: 'pointer' }
 };

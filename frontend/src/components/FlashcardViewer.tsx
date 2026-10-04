@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Trash2, RotateCw, Edit2 } from 'lucide-react';
 import type { Flashcard } from '../types';
@@ -47,7 +48,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
             <span style={styles.badgeFront}>Pojęcie / Słowo</span>
             <h2 style={styles.wordFront}>{cardFrontText}</h2>
             <div style={styles.flipHintContainer}>
-              <RotateCw size={14} color="#94a3b8" />
+              <RotateCw size={14} color={theme.colors.textSubtle} />
               <span style={styles.flipHint}>Kliknij kartę, aby obrócić i zobaczyć tłumaczenie</span>
             </div>
           </div>
@@ -69,8 +70,8 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ flashcards, on
             )}
             
             <div style={styles.flipHintContainer}>
-              <RotateCw size={14} color="#818cf8" />
-              <span style={{ ...styles.flipHint, color: '#818cf8' }}>Kliknij, aby wrócić do pojęcia</span>
+              <RotateCw size={14} color={theme.colors.indigoText} />
+              <span style={{ ...styles.flipHint, color: theme.colors.indigoText }}>Kliknij, aby wrócić do pojęcia</span>
             </div>
           </div>
         )}
@@ -135,9 +136,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   flipCard: { 
     minHeight: '400px', 
-    backgroundColor: '#ffffff', 
+    backgroundColor: theme.colors.white, 
     borderRadius: '24px', 
-    border: '1px solid #e2e8f0', 
+    border: `1px solid ${theme.colors.border}`, 
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)', 
     padding: '3.5rem 3rem', 
     display: 'flex', 
@@ -149,26 +150,26 @@ const styles: Record<string, React.CSSProperties> = {
     transition: 'transform 0.15s ease, boxShadow 0.15s ease'
   },
   cardFront: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px', width: '100%' },
-  badgeFront: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: '#f1f5f9', color: '#64748b', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
-  wordFront: { fontSize: '42px', color: '#0f172a', margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
+  badgeFront: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: theme.colors.surfaceMuted, color: theme.colors.textMuted, padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
+  wordFront: { fontSize: '42px', color: theme.colors.text, margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
   cardBack: { textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' },
-  badgeBack: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: '#e0e7ff', color: '#4338ca', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
-  wordBack: { fontSize: '38px', color: '#4f46e5', margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
-  infoBox: { fontSize: '14px', color: '#334155', backgroundColor: '#f8fafc', padding: '10px 16px', borderRadius: '10px', width: '100%', maxWidth: '500px', textAlign: 'left', border: '1px solid #f1f5f9' },
+  badgeBack: { fontSize: '12px', textTransform: 'uppercase', backgroundColor: theme.colors.primarySoft, color: theme.colors.primaryDark, padding: '6px 14px', borderRadius: '20px', fontWeight: 600, letterSpacing: '0.5px' },
+  wordBack: { fontSize: '38px', color: theme.colors.primary, margin: '10px 0', fontWeight: 700, wordBreak: 'break-word', lineHeight: '1.2' },
+  infoBox: { fontSize: '14px', color: theme.colors.textLabel, backgroundColor: theme.colors.pageBackground, padding: '10px 16px', borderRadius: '10px', width: '100%', maxWidth: '500px', textAlign: 'left', border: `1px solid ${theme.colors.surfaceMuted}` },
   flipHintContainer: { display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2rem' },
-  flipHint: { fontSize: '13px', color: '#94a3b8', fontWeight: 500 },
+  flipHint: { fontSize: '13px', color: theme.colors.textSubtle, fontWeight: 500 },
   controlsBar: { 
     display: 'flex', 
     justifyContent: 'space-between', 
     alignItems: 'center', 
-    backgroundColor: '#ffffff', 
+    backgroundColor: theme.colors.white, 
     padding: '12px 20px', 
     borderRadius: '14px', 
-    border: '1px solid #e2e8f0',
+    border: `1px solid ${theme.colors.border}`,
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)'
   },
-  btnNav: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', border: 'none', backgroundColor: '#f1f5f9', color: '#334155', fontSize: '14px', fontWeight: 600, cursor: 'pointer' },
-  counterText: { fontSize: '14px', color: '#64748b', fontWeight: 400 },
-  btnEdit: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#eff6ff', color: '#3b82f6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  btnDelete: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#fef2f2', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  btnNav: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', border: 'none', backgroundColor: theme.colors.surfaceMuted, color: theme.colors.textLabel, fontSize: '14px', fontWeight: 600, cursor: 'pointer' },
+  counterText: { fontSize: '14px', color: theme.colors.textMuted, fontWeight: 400 },
+  btnEdit: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: theme.colors.infoSoft, color: theme.colors.info, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  btnDelete: { padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: theme.colors.dangerSoft, color: theme.colors.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 };

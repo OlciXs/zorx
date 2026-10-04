@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState } from 'react';
 import { api } from '../api';
 import { LoginScreen } from './LoginScreen';
@@ -61,6 +62,6 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.colors.surfaceMuted,
   },
 };

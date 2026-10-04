@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState } from 'react';
 import { LogIn, BookOpen } from 'lucide-react';
 
@@ -19,7 +20,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToReg
     <div style={styles.authCard}>
       <div style={styles.authHeader}>
         <div style={styles.iconCircle}>
-          <BookOpen size={28} color="#4f46e5" />
+          <BookOpen size={28} color={theme.colors.primary} />
         </div>
         <h2 style={styles.authTitle}>Witaj z powrotem</h2>
         <p style={styles.authSubtitle}>Zaloguj się do swojego panelu nauki</p>
@@ -65,16 +66,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToReg
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  authCard: { backgroundColor: '#ffffff', padding: '2.5rem', borderRadius: '16px', width: '100%', maxWidth: '380px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)' },
+  authCard: { backgroundColor: theme.colors.white, padding: '2.5rem', borderRadius: '16px', width: '100%', maxWidth: '380px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)' },
   authHeader: { textAlign: 'center', marginBottom: '1.5rem' },
-  iconCircle: { width: '56px', height: '56px', backgroundColor: '#e0e7ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto' },
-  authTitle: { margin: '0 0 4px 0', fontSize: '22px', fontWeight: 700, color: '#0f172a' },
-  authSubtitle: { margin: 0, fontSize: '13px', color: '#64748b' },
+  iconCircle: { width: '56px', height: '56px', backgroundColor: theme.colors.primarySoft, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto' },
+  authTitle: { margin: '0 0 4px 0', fontSize: '22px', fontWeight: 700, color: theme.colors.text },
+  authSubtitle: { margin: 0, fontSize: '13px', color: theme.colors.textMuted },
   form: { display: 'flex', flexDirection: 'column', gap: '1.2rem' },
   inputGroup: { display: 'flex', flexDirection: 'column', gap: '4px' },
-  label: { fontSize: '12px', fontWeight: 600, color: '#334155' },
-  input: { padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' },
-  btnSubmit: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#4f46e5', color: '#ffffff', fontWeight: 600, cursor: 'pointer', fontSize: '14px', marginTop: '8px' },
+  label: { fontSize: '12px', fontWeight: 600, color: theme.colors.textLabel },
+  input: { padding: '10px 14px', borderRadius: '8px', border: `1px solid ${theme.colors.borderStrong}`, fontSize: '14px', outline: 'none' },
+  btnSubmit: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: theme.colors.primary, color: theme.colors.white, fontWeight: 600, cursor: 'pointer', fontSize: '14px', marginTop: '8px' },
   authFooter: { marginTop: '1.5rem', textAlign: 'center' },
-  btnToggle: { background: 'none', border: 'none', color: '#4f46e5', fontSize: '13px', fontWeight: 500, cursor: 'pointer' },
+  btnToggle: { background: 'none', border: 'none', color: theme.colors.primary, fontSize: '13px', fontWeight: 500, cursor: 'pointer' },
 };

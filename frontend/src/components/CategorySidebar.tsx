@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState } from 'react';
 import { Layers, Plus, Trash2 } from 'lucide-react';
 import type { Category } from '../types';
@@ -29,7 +30,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   return (
     <aside style={styles.sidebar}>
       <div style={styles.sidebarHeader}>
-        <Layers size={18} color="#4f46e5" />
+        <Layers size={18} color={theme.colors.primary} />
         <h3 style={styles.sidebarTitle}>Kategorie</h3>
       </div>
 
@@ -87,25 +88,25 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  sidebar: { width: '260px', backgroundColor: '#ffffff', padding: '1.2rem', borderRadius: '12px', border: '1px solid #e2e8f0', height: 'fit-content' },
+  sidebar: { width: '260px', backgroundColor: theme.colors.white, padding: '1.2rem', borderRadius: '12px', border: `1px solid ${theme.colors.border}`, height: 'fit-content' },
   sidebarHeader: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' },
-  sidebarTitle: { margin: 0, fontSize: '16px', fontWeight: 600, color: '#1e293b' },
+  sidebarTitle: { margin: 0, fontSize: '16px', fontWeight: 600, color: theme.colors.textStrong },
   catForm: { display: 'flex', gap: '6px', marginBottom: '1rem' },
   catInput: { 
     flex: 1, 
     padding: '8px 10px', 
     borderRadius: '6px', 
-    border: '1px solid #cbd5e1', 
+    border: `1px solid ${theme.colors.borderStrong}`, 
     fontSize: '13px',
-    backgroundColor: '#ffffff',
-    color: '#000000',
+    backgroundColor: theme.colors.white,
+    color: theme.colors.black,
     outline: 'none'
   },
   
-  btnCatAdd: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: '#4f46e5', color: '#fff', cursor: 'pointer' },
+  btnCatAdd: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: theme.colors.primary, color: theme.colors.white, cursor: 'pointer' },
   catList: { display: 'flex', flexDirection: 'column', gap: '4px' },
   catRow: { display: 'flex', alignItems: 'center', gap: '4px' },
-  catItem: { textAlign: 'left', padding: '10px 12px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#475569', cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s' },
-  catItemActive: { backgroundColor: '#e0e7ff', color: '#4338ca', fontWeight: 600 },
-  btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' },
+  catItem: { textAlign: 'left', padding: '10px 12px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: theme.colors.textBody, cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s' },
+  catItemActive: { backgroundColor: theme.colors.primarySoft, color: theme.colors.primaryDark, fontWeight: 600 },
+  btnCatDelete: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', color: theme.colors.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' },
 };

@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState } from 'react';
 import { ArrowLeft, CheckCircle2, XCircle, RotateCcw, Play } from 'lucide-react';
 import type { Flashcard } from '../types';
@@ -92,9 +93,9 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
                 onClick={() => setDirection('pl-to-en')}
                 style={{
                   ...styles.directionBtn,
-                  backgroundColor: direction === 'pl-to-en' ? '#4f46e5' : '#f8fafc',
-                  color: direction === 'pl-to-en' ? '#ffffff' : '#334155',
-                  borderColor: direction === 'pl-to-en' ? '#4f46e5' : '#e2e8f0',
+                  backgroundColor: direction === 'pl-to-en' ? theme.colors.primary : theme.colors.pageBackground,
+                  color: direction === 'pl-to-en' ? theme.colors.white : theme.colors.textLabel,
+                  borderColor: direction === 'pl-to-en' ? theme.colors.primary : theme.colors.border,
                 }}
               >
                 Polski → Angielski
@@ -104,9 +105,9 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
                 onClick={() => setDirection('en-to-pl')}
                 style={{
                   ...styles.directionBtn,
-                  backgroundColor: direction === 'en-to-pl' ? '#4f46e5' : '#f8fafc',
-                  color: direction === 'en-to-pl' ? '#ffffff' : '#334155',
-                  borderColor: direction === 'en-to-pl' ? '#4f46e5' : '#e2e8f0',
+                  backgroundColor: direction === 'en-to-pl' ? theme.colors.primary : theme.colors.pageBackground,
+                  color: direction === 'en-to-pl' ? theme.colors.white : theme.colors.textLabel,
+                  borderColor: direction === 'en-to-pl' ? theme.colors.primary : theme.colors.border,
                 }}
               >
                 Angielski → Polski
@@ -159,7 +160,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
             {wrongCards.length > 0 && (
               <button 
                 onClick={() => startTest(wrongCards)} 
-                style={{ ...styles.mainButton, backgroundColor: '#0f172a' }}
+                style={{ ...styles.mainButton, backgroundColor: theme.colors.text }}
               >
                 Powtórz tylko błędy ({wrongCards.length})
               </button>
@@ -201,7 +202,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
             onChange={(e) => setUserInput(e.target.value)}
             style={{
               ...styles.testInput,
-              borderColor: feedback === 'correct' ? '#22c55e' : feedback === 'incorrect' ? '#ef4444' : '#e2e8f0',
+              borderColor: feedback === 'correct' ? theme.colors.green : feedback === 'incorrect' ? theme.colors.danger : theme.colors.border,
             }}
           />
 
@@ -212,15 +213,15 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
           ) : (
             <div style={styles.feedbackContainer}>
               {feedback === 'correct' ? (
-                <div style={{ color: '#22c55e', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                <div style={{ color: theme.colors.green, display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
                   <CheckCircle2 size={20} /> Świetnie! Poprawna odpowiedź.
                 </div>
               ) : (
-                <div style={{ color: '#ef4444', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ color: theme.colors.danger, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
                     <XCircle size={20} /> Niestety nie. Poprawna odpowiedź to:
                   </div>
-                  <strong style={{ fontSize: '18px', color: '#0f172a' }}>{expectedAnswer}</strong>
+                  <strong style={{ fontSize: '18px', color: theme.colors.text }}>{expectedAnswer}</strong>
                 </div>
               )}
               <button type="button" onClick={handleNext} style={styles.mainButton}>
@@ -235,29 +236,29 @@ export const TestScreen: React.FC<TestScreenProps> = ({ flashcards, onBack }) =>
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  container: { maxWidth: '800px', margin: '3rem auto', padding: '0 2rem', display: 'flex', flexDirection: 'column', gap: '2rem', fontFamily: 'system-ui, sans-serif' },
-  backButton: { display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#64748b', fontSize: '14px', fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start', padding: 0 },
-  cardBox: { backgroundColor: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', padding: '3rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', display: 'flex', flexDirection: 'column', gap: '2rem' },
-  title: { fontSize: '28px', fontWeight: 700, color: '#0f172a', margin: '0 0 4px 0' },
-  subtitle: { fontSize: '15px', color: '#64748b', margin: 0 },
+  container: { minHeight: '100vh', maxWidth: '800px', margin: '0 auto', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', gap: '2rem', fontFamily: 'system-ui, sans-serif', backgroundColor: theme.colors.pageBackground },
+  backButton: { display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: theme.colors.textMuted, fontSize: '14px', fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start', padding: 0 },
+  cardBox: { backgroundColor: theme.colors.white, borderRadius: '24px', border: `1px solid ${theme.colors.border}`, padding: '3rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', display: 'flex', flexDirection: 'column', gap: '2rem' },
+  title: { fontSize: '28px', fontWeight: 700, color: theme.colors.text, margin: '0 0 4px 0' },
+  subtitle: { fontSize: '15px', color: theme.colors.textMuted, margin: 0 },
   configGroup: { display: 'flex', flexDirection: 'column', gap: '10px' },
-  label: { fontSize: '14px', fontWeight: 600, color: '#334155' },
+  label: { fontSize: '14px', fontWeight: 600, color: theme.colors.textLabel },
   directionRow: { display: 'flex', gap: '10px' },
   directionBtn: { flex: 1, padding: '12px', borderRadius: '12px', border: '2px solid', fontWeight: 600, fontSize: '14px', cursor: 'pointer', textAlign: 'center' },
   inputRow: { display: 'flex', alignItems: 'center', gap: '12px' },
-  numberInput: { width: '120px', padding: '12px 16px', borderRadius: '12px', border: '2px solid #e2e8f0', fontSize: '18px', fontWeight: 600, outline: 'none' },
-  inputLimitInfo: { fontSize: '14px', color: '#64748b' },
-  mainButton: { width: '100%', padding: '14px', backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '15px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' },
+  numberInput: { width: '120px', padding: '12px 16px', borderRadius: '12px', border: `2px solid ${theme.colors.border}`, fontSize: '18px', fontWeight: 600, outline: 'none' },
+  inputLimitInfo: { fontSize: '14px', color: theme.colors.textMuted },
+  mainButton: { width: '100%', padding: '14px', backgroundColor: theme.colors.primary, color: theme.colors.white, border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '15px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' },
   
-  testCard: { backgroundColor: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', padding: '3rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', display: 'flex', flexDirection: 'column', gap: '2rem' },
-  testProgress: { fontSize: '13px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' },
-  questionBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', textAlign: 'center', padding: '2rem 0', backgroundColor: '#f8fafc', borderRadius: '16px' },
-  questionBadge: { fontSize: '11px', textTransform: 'uppercase', backgroundColor: '#e0e7ff', color: '#4338ca', padding: '4px 10px', borderRadius: '20px', fontWeight: 600 },
-  questionText: { fontSize: '34px', color: '#0f172a', margin: 0, fontWeight: 700 },
+  testCard: { backgroundColor: theme.colors.white, borderRadius: '24px', border: `1px solid ${theme.colors.border}`, padding: '3rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', display: 'flex', flexDirection: 'column', gap: '2rem' },
+  testProgress: { fontSize: '13px', fontWeight: 600, color: theme.colors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px' },
+  questionBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', textAlign: 'center', padding: '2rem 0', backgroundColor: theme.colors.pageBackground, borderRadius: '16px' },
+  questionBadge: { fontSize: '11px', textTransform: 'uppercase', backgroundColor: theme.colors.primarySoft, color: theme.colors.primaryDark, padding: '4px 10px', borderRadius: '20px', fontWeight: 600 },
+  questionText: { fontSize: '34px', color: theme.colors.text, margin: 0, fontWeight: 700 },
   testForm: { display: 'flex', flexDirection: 'column', gap: '1.5rem' },
-  testInput: { padding: '16px', borderRadius: '12px', border: '2px solid #e2e8f0', fontSize: '18px', outline: 'none', width: '100%', boxSizing: 'border-box' },
-  feedbackContainer: { display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '12px' },
-  finishCard: { backgroundColor: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', padding: '4rem 3rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' },
+  testInput: { padding: '16px', borderRadius: '12px', border: `2px solid ${theme.colors.border}`, fontSize: '18px', outline: 'none', width: '100%', boxSizing: 'border-box' },
+  feedbackContainer: { display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', backgroundColor: theme.colors.pageBackground, borderRadius: '12px' },
+  finishCard: { backgroundColor: theme.colors.white, borderRadius: '24px', border: `1px solid ${theme.colors.border}`, padding: '4rem 3rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' },
   finishIcon: { fontSize: '48px' },
   finishActions: { display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '300px' }
 };

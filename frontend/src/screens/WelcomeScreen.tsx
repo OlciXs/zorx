@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import React, { useState } from 'react';
 import { api } from '../api';
 import { LoginScreen, RegisterScreen } from '../AuthForms';
@@ -40,8 +41,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoginSuccess }) 
       <div style={styles.heroSection}>
         <div style={styles.heroContent}>
           <div style={styles.logoBadge}>
-            <Zap size={24} color="#6366f1" />
-            <span style={{ fontWeight: 800, fontSize: '24px', color: '#1e293b' }}>Flipify</span>
+            <Zap size={24} color={theme.colors.primaryLight} />
+            <span style={{ fontWeight: 800, fontSize: '24px', color: theme.colors.textStrong }}>Flipify</span>
           </div>
           
           <h1 style={styles.headline}>Ucz się słówek <br/><span style={styles.highlight}>szybciej i mądrzej.</span></h1>
@@ -51,10 +52,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoginSuccess }) 
 
           <div style={styles.downloadCard}>
             <div style={styles.downloadHeader}>
-              <Puzzle size={20} color="#4f46e5" />
-              <h3 style={{ margin: 0, fontSize: '18px', color: '#0f172a' }}>Pobierz wtyczkę</h3>
+              <Puzzle size={20} color={theme.colors.primary} />
+              <h3 style={{ margin: 0, fontSize: '18px', color: theme.colors.text }}>Pobierz wtyczkę</h3>
             </div>
-            <p style={{ margin: '8px 0 16px', fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>
+            <p style={{ margin: '8px 0 16px', fontSize: '14px', color: theme.colors.textBody, lineHeight: '1.5' }}>
               1. Wypakuj plik ZIP.<br/>
               2. Otwórz <code>chrome://extensions/</code><br/>
               3. Włącz "Tryb dewelopera" i załaduj rozpakowany folder.
@@ -80,16 +81,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoginSuccess }) 
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  container: { display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, sans-serif' },
-  heroSection: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', backgroundImage: 'radial-gradient(circle at top left, #e0e7ff 0%, #f8fafc 100%)' },
+  container: { display: 'flex', minHeight: '100vh', backgroundColor: theme.colors.pageBackground, fontFamily: 'system-ui, sans-serif' },
+  heroSection: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', backgroundImage: theme.gradients.hero },
   heroContent: { maxWidth: '480px' },
   logoBadge: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem' },
-  headline: { fontSize: '42px', fontWeight: 800, color: '#0f172a', lineHeight: '1.2', margin: '0 0 1rem 0' },
-  highlight: { background: 'linear-gradient(135deg, #4f46e5, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
-  subheadline: { fontSize: '16px', color: '#475569', marginBottom: '2.5rem', lineHeight: '1.6' },
+  headline: { fontSize: '42px', fontWeight: 800, color: theme.colors.text, lineHeight: '1.2', margin: '0 0 1rem 0' },
+  highlight: { background: theme.gradients.brand, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
+  subheadline: { fontSize: '16px', color: theme.colors.textBody, marginBottom: '2.5rem', lineHeight: '1.6' },
   downloadCard: { background: 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.8)', padding: '24px', borderRadius: '20px', boxShadow: '0 20px 40px -15px rgba(79, 70, 229, 0.15)' },
   downloadHeader: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' },
-  downloadBtn: { display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0f172a', color: '#fff', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: 600, fontSize: '14px', transition: 'transform 0.2s' },
-  authSection: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', backgroundColor: '#ffffff', boxShadow: '-20px 0 40px -10px rgba(0,0,0,0.02)' },
+  downloadBtn: { display: 'inline-flex', alignItems: 'center', gap: '8px', background: theme.colors.text, color: theme.colors.white, padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: 600, fontSize: '14px', transition: 'transform 0.2s' },
+  authSection: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', backgroundColor: theme.colors.white, boxShadow: '-20px 0 40px -10px rgba(0,0,0,0.02)' },
   authWrapper: { width: '100%', maxWidth: '400px' }
 };
