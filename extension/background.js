@@ -128,7 +128,7 @@ function showCustomDefinitionModal(selectedText) {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(74, 13, 49, 0.35);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -139,25 +139,23 @@ function showCustomDefinitionModal(selectedText) {
   // Zawartość okienka
   modal.innerHTML = `
     <div style="
-      background: linear-gradient(145deg, #ffffff, #fff0f8);
+      background: #ffffff;
       padding: 20px;
-      border-radius: 16px;
-      border: 1px solid #f0c9df;
-      box-shadow: 0 20px 50px rgba(154, 0, 88, 0.2);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       width: 320px;
-      color: #24101d;
+      color: #333333;
       box-sizing: border-box;
     ">
-      <div style="margin: -20px -20px 16px; padding: 12px 20px; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, #d10078, #f02b9f); color: #ffffff; font-size: 12px; font-weight: 800; letter-spacing: 1px;">FLIPIFY</div>
-      <h3 style="margin-top:0; margin-bottom: 10px; font-size:15px; color:#24101d;">
-        Definicja dla: <span style="color:#d10078;">"${selectedText}"</span>
+      <h3 style="margin-top:0; margin-bottom: 10px; font-size:15px; color:#222222;">
+        Definicja dla: <span style="color:#007bff;">"${selectedText}"</span>
       </h3>
       <textarea id="word-saver-input" rows="3" placeholder="Wpisz własne znaczenie..." style="
         width: 100%;
         padding: 8px;
         box-sizing: border-box;
-        border: 1px solid #df9fc3;
-        border-radius: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
         resize: vertical;
         font-family: Arial, sans-serif;
         font-size: 13px;
@@ -166,18 +164,18 @@ function showCustomDefinitionModal(selectedText) {
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button id="word-saver-cancel" style="
           padding: 6px 12px;
-          background: #fff0f8;
-          color: #70445e;
+          background: #e0e0e0;
+          color: #333;
           border: none;
-          border-radius: 8px;
+          border-radius: 4px;
           cursor: pointer;
         ">Anuluj</button>
         <button id="word-saver-save" style="
           padding: 6px 12px;
-          background: linear-gradient(135deg, #d10078, #f02b9f);
+          background: #007bff;
           color: white;
           border: none;
-          border-radius: 8px;
+          border-radius: 4px;
           cursor: pointer;
         ">Zapisz</button>
       </div>
