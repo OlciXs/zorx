@@ -33,7 +33,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'speakleash_bielik-11b-v3.0-instruct',
+        model: 'bielik-minitron-7b-v3.0-instruct@q5_k_m',
         system_prompt: systemPrompt,
         input,
       }),
@@ -46,6 +46,59 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   const getFlashcards = async (categoryId?: string) => {
     const response = await api.get(categoryId ? `/flashcards?categoryId=${categoryId}` : '/flashcards');
     return response.data as Flashcard[];
+  };
+
+  const normalizeText = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const getLocalCategoryMatches = (cards: Flashcard[], categories: Category[]) => {
+    const matches: Array<{ cardId: string; categoryId: string }> = [];
+
+    cards.forEach((card) => {
+      const searchableText = `${card.word || ''} ${card.translation || ''}`;
+      const normalizedCard = normalizeText(searchableText);
+      let bestCategoryId = '';
+      let bestScore = 0;
+
+      categories.forEach((category) => {
+        const normalizedCategory = normalizeText(category.name);
+        if (!normalizedCategory) return;
+
+        let score = 0;
+        const categoryTokens = normalizedCategory.split(' ').filter(Boolean);
+
+        if (normalizedCard.includes(normalizedCategory)) score += 18;
+        if (normalizedCard.includes(category.name.toLowerCase())) score += 10;
+
+        categoryTokens.forEach((token) => {
+          if (!token) return;
+
+          if (normalizedCard.includes(token)) score += 8;
+          if (normalizedCard.split(' ').includes(token)) score += 4;
+        });
+
+        const cardWords = normalizedCard.split(' ').filter(Boolean);
+        const overlap = categoryTokens.filter((token) => cardWords.includes(token));
+        score += overlap.length * 6;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestCategoryId = category.id;
+        }
+      });
+
+      if (bestCategoryId && bestScore >= 8) {
+        matches.push({ cardId: card.id, categoryId: bestCategoryId });
+      }
+    });
+
+    return matches;
   };
 
   const suggestCategories = async () => {
@@ -97,13 +150,28 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         setMessage(!cards.length ? 'Brak fiszek bez kategorii.' : 'Najpierw utwórz kategorię.');
         return;
       }
+
+      const localMatches = getLocalCategoryMatches(cards, categories);
+      if (localMatches.length > 0) {
+        await Promise.all(localMatches.map((match) => api.patch(`/flashcards/${match.cardId}`, { categoryId: match.categoryId })));
+        setMessage(`Dopasowano ${localMatches.length} fiszek.`);
+        onRefresh();
+        return;
+      }
+
       const result = await callLlm(
         JSON.stringify({ categories: categories.map(({ id, name }) => ({ id, name })), cards: cards.map(({ id, word, translation }) => ({ id, word, translation })) }),
         'Dopasuj każdą fiszkę do jednej z istniejących kategorii. Zwróć wyłącznie JSON tablicę obiektów {"cardId":"id","categoryId":"id"}. Pomijaj tylko całkowicie niedopasowane fiszki.',
       );
-      const matches = JSON.parse(result.replace(/```json|```/g, '').trim()) as Array<{ cardId: string; categoryId: string }>;
-      await Promise.all(matches.map((match) => api.patch(`/flashcards/${match.cardId}`, { categoryId: match.categoryId })));
-      setMessage(`Dopasowano ${matches.length} fiszek.`);
+      const raw = result.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(raw) as Array<{ cardId: string; categoryId: string }>;
+      const matches = Array.isArray(parsed) ? parsed : [];
+
+      if (matches.length > 0) {
+        await Promise.all(matches.map((match) => api.patch(`/flashcards/${match.cardId}`, { categoryId: match.categoryId })));
+      }
+
+      setMessage(matches.length ? `Dopasowano ${matches.length} fiszek.` : 'Brak oczywistych dopasowań do kategorii.');
       onRefresh();
     } catch {
       setMessage('Nie udało się dopasować fiszek.');
