@@ -7,7 +7,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // Menu główne
   chrome.contextMenus.create({
     id: "wordSaverMenu",
-    title: "Zapisywacz Słów",
+    title: "Flipify",
     contexts: ["selection"]
   });
 
